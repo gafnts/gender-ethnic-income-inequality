@@ -283,9 +283,15 @@ stats_mujeres <- des_stats(boots_mujeres)
 t.test(boots_hombres, boots_mujeres, var.equal = TRUE) %>% tidy()
 ```
 
-```{r include = FALSE}
+```{r echo = FALSE}
 
 ```
+
+\small
+
+\textbf{Source:} <https://www.real-statistics.com/non-parametric-tests/gini-coefficient/standard-error-of-gini-index/>
+
+\normalsize
 
 Gini standard error bootstrapping:
 
