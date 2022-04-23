@@ -291,6 +291,10 @@ stats_mujeres <- des_stats(boots_mujeres)
 t.test(boots_hombres, boots_mujeres, var.equal = TRUE)
 ```
 
+```{r include = FALSE}
+
+```
+
 Gini standard error bootstrapping:
 
 $$
