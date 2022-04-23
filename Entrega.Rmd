@@ -17,8 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r message = TRUE, warning = TRUE, include = FALSE}
-pacman::p_load(tidyverse, kableExtra, magrittr, here, 
-               patchwork, broom, e1071, DescTools)
+pacman::p_load(tidyverse, kableExtra, magrittr, here, knitr,
+               patchwork, broom, e1071, DescTools, xtable)
 
 data <- read_csv(here("data.csv"), name_repair = "minimal")
 ```
@@ -280,11 +280,43 @@ stats_hombres <- des_stats(boots_hombres)
 boots_mujeres <- bootstraps(mujeres)
 stats_mujeres <- des_stats(boots_mujeres)
 
-t.test(boots_hombres, boots_mujeres, var.equal = TRUE) %>% tidy()
+t_test2 <- 
+  t.test(boots_hombres, boots_mujeres, var.equal = TRUE) %>% 
+  tidy() %>% 
+  select("Estadístico t" = statistic, "Valor p" =  p.value) %>% 
+  mutate(`  ` = " ") %>% 
+  pivot_longer(-`  `) %>% 
+  rename(" " = name, "Valor" = value)
+
+table_three <- 
+  stats_hombres %>% 
+  bind_rows(stats_mujeres) %>% 
+  mutate(Grupo = c("Hombres", "Mujeres")) %>% 
+  relocate(Grupo) %>% 
+  bind_cols(t_test2)
 ```
 
-```{r echo = FALSE}
+```{=tex}
+\begin{center}
 
+\small
+
+\textbf{Cuadro 1:} Estadísticas descriptivas de ingresos entre hombres y mujeres
+
+\normalsize
+
+\end{center}
+```
+```{r sample, echo=FALSE}
+kbl(table_three, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(3, width = "2cm") %>% 
+  column_spec(7, width = "0.5cm") %>% 
+  column_spec(8, width = "2cm")
 ```
 
 \small
@@ -292,12 +324,6 @@ t.test(boots_hombres, boots_mujeres, var.equal = TRUE) %>% tidy()
 \textbf{Source:} <https://www.real-statistics.com/non-parametric-tests/gini-coefficient/standard-error-of-gini-index/>
 
 \normalsize
-
-Gini standard error bootstrapping:
-
-$$
-se = \sqrt{\frac{1}{k-1} \sum_{j = 1}^k(G_j - \overline{G})^2}
-$$
 
 e)  Calcula el anterior inciso d) pero ahora segmentando a los hombres indígenas de los no indígenas y a las mujeres indígenas de las no indígenas. Comenta las diferencias de las medias de ingreso y de los Gini de los cuatro grupos segmentados.
 
