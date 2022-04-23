@@ -232,14 +232,6 @@ plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
 
 d)  Calcula el coeficiente de Gini únicamente para la población masculina y para la femenina, compara los valores absolutos y determina si estadísticamente son distintos (analiza este punto con dos párrafos explicativos máximo).
 
-$$
-t=\frac{(\overline{Y}_1 - \overline{Y}_2) - d_0}{se(\overline{Y}_1 - \overline{Y}_2)} \tag{2}
-$$
-
-$$
-se(\overline{Y}_1 - \overline{Y}_2) = \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}.
-$$
-
 ```{r include = FALSE}
 bootstraps <- function(data) {
   vector <- data %>% pull(1)
@@ -288,7 +280,7 @@ stats_hombres <- des_stats(boots_hombres)
 boots_mujeres <- bootstraps(mujeres)
 stats_mujeres <- des_stats(boots_mujeres)
 
-t.test(boots_hombres, boots_mujeres, var.equal = TRUE)
+t.test(boots_hombres, boots_mujeres, var.equal = TRUE) %>% tidy()
 ```
 
 ```{r include = FALSE}
