@@ -73,6 +73,8 @@ a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las 
 \normalsize
 
 \end{center}
+
+\renewcommand{\arraystretch}{1.3}
 ```
 ```{r include = FALSE}
 table_one <- 
@@ -90,6 +92,8 @@ table_one <-
   )
 ```
 
+\renewcommand{\arraystretch}{1}
+
 ```{r echo = FALSE}
 kbl(table_one, 
     booktabs = T,
@@ -106,7 +110,7 @@ kbl(table_one,
 
 \small
 
-\textbf{Figura 1:} Boxplot e histograma de ingresos entre hombres y mujeres
+\textbf{Figura 1:} Boxplot e histograma de frecuencias poligonales de ingresos entre hombres y mujeres
 
 \normalsize
 
@@ -144,6 +148,8 @@ b)  Compara ahora las medias y determina si estadísticamente son distintas (el 
 \end{center}
 
 \vspace{-2mm}
+
+\renewcommand{\arraystretch}{1.3}
 ```
 ```{r include = FALSE}
 hombres <- ingresos %>% filter(Sexo == "Masc") %>% select(Ingreso)
@@ -174,6 +180,8 @@ kbl(table_two,
   column_spec(2, width = "4cm")
 ```
 
+\renewcommand{\arraystretch}{1}
+
 \newpage
 
 c)  Calcula el coeficiente de Gini de toda la muestra contenida en la base de datos y comenta cuál es tu apreciación del coeficiente de Gini encontrado (un párrafo como máximo).
@@ -194,7 +202,7 @@ gini <- Gini(ingresos %>% pull(3))
 
 \small
 
-\textbf{Figura 2:} Curva de Lorentz
+\textbf{Figura 2:} Curva de Lorentz en Guatemala
 
 \normalsize
 
@@ -238,7 +246,7 @@ bootstraps <- function(data) {
   gini <- Gini(vector)
   
   set.seed(123)
-  resamples <- lapply(1:2000, function(i) sample(vector, size = 2000, replace = T))
+  resamples <- lapply(1:1000, function(i) sample(vector, size = 1000, replace = T))
   gini_boots <- sapply(resamples, Gini)
   return(gini_boots)
 }
@@ -257,19 +265,6 @@ des_stats <- function(data) {
     )
   
   return(stats)
-}
-
-gini_se <- function(boots, stats) {
-  se <- 
-    data %>% 
-    bind_cols(gini) %>% 
-    rename("boots" = `...1`, "gini" = `...2`) %>% 
-    mutate(diff = (boots - gini)^2) %>% 
-    summarise(sum = sum(diff)) %>% 
-    mutate(se = sqrt((1 / (length(resamples) - 1)) * sum)) %>% 
-    select(se)
-  
-  return(se)
 }
 ```
 
@@ -301,13 +296,17 @@ table_three <-
 
 \small
 
-\textbf{Cuadro 1:} Estadísticas descriptivas de ingresos entre hombres y mujeres
+\textbf{Cuadro 3:} Bootstrapping del coeficiente de Gini por género
 
 \normalsize
 
 \end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
 ```
-```{r sample, echo=FALSE}
+```{r echo=FALSE}
 kbl(table_three, 
     booktabs = T,
     align = c("c")) %>%
@@ -319,23 +318,155 @@ kbl(table_three,
   column_spec(8, width = "2cm")
 ```
 
-\small
-
-\textbf{Source:} <https://www.real-statistics.com/non-parametric-tests/gini-coefficient/standard-error-of-gini-index/>
-
-\normalsize
+\renewcommand{\arraystretch}{1}
 
 e)  Calcula el anterior inciso d) pero ahora segmentando a los hombres indígenas de los no indígenas y a las mujeres indígenas de las no indígenas. Comenta las diferencias de las medias de ingreso y de los Gini de los cuatro grupos segmentados.
 
+```{r include = FALSE}
+ingresos_hombres <- 
+  ingresos %>% 
+  filter(Sexo == "Masc") %>% 
+  mutate(Etnia = 
+           fct_collapse(Etnia,
+                        Maya = c("Maya"),
+                        `No Maya` = c("Xina", "Garífuna", "Ladino", "Extranjero")))
+
+ingresos_mujeres <- 
+  ingresos %>% 
+  filter(Sexo == "Fem") %>% 
+  mutate(Etnia = 
+           fct_collapse(Etnia,
+                        Maya = c("Maya"),
+                        `No Maya` = c("Xina", "Garífuna", "Ladino", "Extranjero")))
+```
+
+```{r include = FALSE}
+hombres_maya <- ingresos_hombres %>% filter(Etnia == "Maya") %>% select(Ingreso)
+hombres_no_maya <- ingresos_hombres %>% filter(Etnia == "No Maya") %>% select(Ingreso)
+
+boots_hombres_maya <- bootstraps(hombres_maya)
+stats_hombres_maya <- des_stats(boots_hombres_maya)
+
+boots_hombres_no_maya <- bootstraps(hombres_no_maya)
+stats_hombres_no_maya <- des_stats(boots_hombres_no_maya)
+
+t_test3 <- 
+  t.test(boots_hombres_maya, boots_hombres_no_maya, var.equal = TRUE) %>% 
+  tidy() %>% 
+  select("Estadístico t" = statistic, "Valor p" =  p.value) %>% 
+  mutate(`  ` = " ") %>% 
+  pivot_longer(-`  `) %>% 
+  rename(" " = name, "Valor" = value)
+
+table_four <- 
+  stats_hombres_maya %>% 
+  bind_rows(stats_hombres_no_maya) %>% 
+  mutate(Grupo = c("Maya", "No Maya")) %>% 
+  relocate(Grupo) %>% 
+  bind_cols(t_test3)
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 4:} Bootstrapping del coeficiente de Gini entre hombres por autodenominación étnica
+
+\normalsize
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
+```
+```{r echo=FALSE}
+kbl(table_four, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(3, width = "2cm") %>% 
+  column_spec(7, width = "0.5cm") %>% 
+  column_spec(8, width = "2cm")
+```
+
+\renewcommand{\arraystretch}{1}
+
+```{r include = FALSE}
+mujeres_maya <- ingresos_mujeres %>% filter(Etnia == "Maya") %>% select(Ingreso)
+mujeres_no_maya <- ingresos_mujeres %>% filter(Etnia == "No Maya") %>% select(Ingreso)
+
+boots_mujeres_maya <- bootstraps(mujeres_maya)
+stats_mujeres_maya <- des_stats(boots_mujeres_maya)
+
+boots_mujeres_no_maya <- bootstraps(mujeres_no_maya)
+stats_mujeres_no_maya <- des_stats(boots_mujeres_no_maya)
+
+t_test4 <- 
+  t.test(boots_mujeres_maya, boots_mujeres_no_maya, var.equal = TRUE) %>% 
+  tidy() %>% 
+  select("Estadístico t" = statistic, "Valor p" =  p.value) %>% 
+  mutate(`  ` = " ") %>% 
+  pivot_longer(-`  `) %>% 
+  rename(" " = name, "Valor" = value)
+
+table_five <- 
+  stats_mujeres_maya %>% 
+  bind_rows(stats_mujeres_no_maya) %>% 
+  mutate(Grupo = c("Maya", "No Maya")) %>% 
+  relocate(Grupo) %>% 
+  bind_cols(t_test4)
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 5:} Bootstrapping del coeficiente de Gini entre mujeres por autodenominación étnica
+
+\normalsize
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
+```
+```{r echo=FALSE}
+kbl(table_five, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(3, width = "2cm") %>% 
+  column_spec(7, width = "0.5cm") %>% 
+  column_spec(8, width = "2cm")
+```
+
+\renewcommand{\arraystretch}{1}
+
 f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becker disponible en el portal y la presentación), arma una ecuación minceriana para evaluar los efectos de cada variable del Capital Humano en la muestra total.
 
+```{r include = FALSE}
+
+```
+
 g)  Procede a evaluar el inciso f) realizando una ecuación ara hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
+
+```{r include = FALSE}
+
+```
 
 h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos párrafos por ítem para comentar lo siguiente:
 
 \- ¿Es Guatemala un país con alta desigualdad?
 
-\- ¿Existen diferencias significativas por Sexo en el mercado laboral?
+\- ¿Existen diferencias significativas por sexo en el mercado laboral?
 
 \- ¿Es más alta la desigualdad entre hombres o entre mujeres y por qué?
 
