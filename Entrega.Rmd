@@ -1,0 +1,316 @@
+---
+title: "Midiendo el desarrollo entre hombres y mujeres"
+author: 
+  - "*María Fernanda Puddy*"
+  - "*Erik Angel*"
+  - "*Andrés Bermúdez*"
+  - "*Daniel Sandoval*"
+  - "*Gabriel Fuentes*"
+date: "*Abril, 2022*"
+output: pdf_document
+header-includes:
+  - \usepackage{setspace}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message = TRUE, warning = TRUE, include = FALSE}
+pacman::p_load(tidyverse, kableExtra, magrittr, here, 
+               patchwork, broom, e1071, DescTools)
+
+data <- read_csv(here("data.csv"), name_repair = "minimal")
+```
+
+```{r include = FALSE}
+salarios <- 
+  data %>% 
+  select("Sexo" = PPA02, 
+         "Etnia" = PPA06,
+         "Salario" = P04C10,
+         "horas_extra" = P04C11C,
+         "comisiones" = P04C12B,
+         "vacaciones" = P04C13B,
+         "bono_14" = P04C14B,
+         "aguinaldo" = P04C15B,
+         "bono_vacacional" = P04C16B,
+         "quinceavo_sueldo" = P04C17B,
+         "alimentación" = P04C18B,
+         "vivienda" = P04C19B,
+         "transporte" = P04C20B,
+         "bono_productividad" = P04C21B,
+         "remesas" = P05A17B
+         ) %>% 
+  mutate(Sexo = fct_recode(as_factor(Sexo), 
+                           "Masc" = "1", 
+                           "Fem" = "2"),
+         Etnia = fct_recode(as_factor(Etnia), 
+                            "Xina" = "1",
+                            "Garífuna" = "2",
+                            "Ladino" = "3",
+                            "Extranjero" = "4",
+                            "Maya" = "5"),
+         across(where(is.numeric), ~ replace_na(.,0)),
+         Ingreso = rowSums(across(where(is.numeric)))) %>% 
+  relocate(Sexo, Etnia, Ingreso)
+
+ingresos <- 
+  salarios %>% 
+  select(Sexo, Etnia, Ingreso) %>% 
+  filter(Ingreso != 0)
+```
+
+a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 1:} Estadísticas descriptivas de ingresos entre hombres y mujeres
+
+\normalsize
+
+\end{center}
+```
+```{r include = FALSE}
+table_one <- 
+  ingresos %>% 
+  group_by(Sexo) %>% 
+  select(-Etnia) %>% 
+  summarise(Media = round(mean(Ingreso), 2),
+            Mediana = round(median(Ingreso), 2),
+            `Desv. Est.` = round(sd(Ingreso), 2),
+            Mínimo = round(min(Ingreso), 2),
+            Máximo = round(max(Ingreso), 2),
+            Asimetría = round(skewness(Ingreso), 2),
+            Curtosis = round(kurtosis(Ingreso), 2),
+            `Obs.` = length(Sexo)
+  )
+```
+
+```{r echo = FALSE}
+kbl(table_one, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(4, width = "2cm") %>% 
+  column_spec(9, width = "1cm")
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Figura 1:} Boxplot e histograma de ingresos entre hombres y mujeres
+
+\normalsize
+
+\end{center}
+```
+```{r echo = FALSE, fig.dim = c(10, 3)}
+p1 <- 
+  ingresos %>% 
+  ggplot(aes(Ingreso, color = Sexo)) +
+  geom_freqpoly(bins = 100) +
+  theme_bw() +
+  labs(y = NULL)
+
+p2 <- 
+  ingresos %>% 
+  ggplot(aes(Sexo, Ingreso)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(y = NULL)
+
+(p2 + p1) + plot_layout(widths = c(1, 2))
+```
+
+b)  Compara ahora las medias y determina si estadísticamente son distintas (el hecho de que los valores absolutos sean distintos no necesariamente significa que estadísticamente lo sean). Presenta tu cálculo y la evidencia para afirmar tu respuesta.
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 2:} Prueba t de dos muestras de Welch
+
+\normalsize
+
+\end{center}
+
+\vspace{-2mm}
+```
+```{r include = FALSE}
+hombres <- ingresos %>% filter(Sexo == "Masc") %>% select(Ingreso)
+mujeres <- ingresos %>%  filter(Sexo == "Fem") %>% select(Ingreso)
+```
+
+```{r include = FALSE}
+table_two <- 
+  t.test(hombres, mujeres, var.equal = FALSE) %>% 
+  tidy() %>% 
+  select(estimate1, estimate2, statistic, p.value, conf.low, conf.high) %>% 
+  rename("Hombres" = 1,
+         "Mujeres" = 2,
+         "Estadístico t" = 3,
+         "Valor p" = 4) %>% 
+  select(`Estadístico t`, `Valor p`)
+```
+
+```{r echo = FALSE}
+kbl(table_two, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                position = "center",
+                latex_options = "hold_position") %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(1, width = "4cm") %>% 
+  column_spec(2, width = "4cm")
+```
+
+\newpage
+
+c)  Calcula el coeficiente de Gini de toda la muestra contenida en la base de datos y comenta cuál es tu apreciación del coeficiente de Gini encontrado (un párrafo como máximo).
+
+$$
+\tag{1}
+Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |
+$$
+
+donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. El coeficiente se encuentra entre cero y uno y su interpretación es sencilla. Números mayores en el índice corresponden a un mayor nivel de desigualdad en la muestra. Un índice de Gini de cero significa perfecta igualdad de ingresos mientras que un coeficiente de uno representa exactamente lo contrario.
+
+```{r include = FALSE}
+gini <- Gini(ingresos %>% pull(3))
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Figura 2:} Curva de Lorentz
+
+\normalsize
+
+\end{center}
+
+\vspace{-3mm}
+```
+```{r include = FALSE}
+lorentz <- Lc(ingresos %>% pull(3))
+p <- lorentz[1]
+l <- lorentz[2]
+lor <- bind_cols(p, l)
+```
+
+```{r echo = FALSE, fig.dim = c(10, 3)}
+p3 <- 
+  lor %>% 
+  ggplot(aes(p, L)) +
+  geom_line(color = "orange") +
+  scale_x_continuous(
+    name = "Proporción de personas (de ingresos más bajos a más altos)", limits = c(0,1)
+    ) + 
+  scale_y_continuous(
+    name = "Proporción de ingresos obtenidos", limits = c(0,1)
+    ) +
+  geom_abline(color = "grey") +
+  theme_bw() + 
+  theme(legend.position = "none") +
+  annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .2) +
+  annotate("text", x = .25, y = .85, 
+           label = paste("Índice de Gini = ", round(gini, 4)))
+
+plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
+```
+
+d)  Calcula el coeficiente de Gini únicamente para la población masculina y para la femenina, compara los valores absolutos y determina si estadísticamente son distintos (analiza este punto con dos párrafos explicativos máximo).
+
+$$
+t=\frac{(\overline{Y}_1 - \overline{Y}_2) - d_0}{se(\overline{Y}_1 - \overline{Y}_2)} \tag{2}
+$$
+
+$$
+se(\overline{Y}_1 - \overline{Y}_2) = \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}.
+$$
+
+```{r include = FALSE}
+bootstraps <- function(data) {
+  vector <- data %>% pull(1)
+  gini <- Gini(vector)
+  
+  set.seed(123)
+  resamples <- lapply(1:2000, function(i) sample(vector, size = 2000, replace = T))
+  gini_boots <- sapply(resamples, Gini)
+  return(gini_boots)
+}
+
+des_stats <- function(data) {
+  stats <-
+    data %>%
+    as_tibble() %>%
+    rename("resamples" = value) %>%
+    summarise(
+      Media = round(mean(resamples), 4),
+      `Desv. Est.` = round(sd(resamples), 4),
+      Mínimo = round(min(resamples), 4),
+      Máximo = round(max(resamples), 4),
+      `Obs.` = length(resamples)
+    )
+  
+  return(stats)
+}
+
+gini_se <- function(boots, stats) {
+  se <- 
+    data %>% 
+    bind_cols(gini) %>% 
+    rename("boots" = `...1`, "gini" = `...2`) %>% 
+    mutate(diff = (boots - gini)^2) %>% 
+    summarise(sum = sum(diff)) %>% 
+    mutate(se = sqrt((1 / (length(resamples) - 1)) * sum)) %>% 
+    select(se)
+  
+  return(se)
+}
+```
+
+```{r include = FALSE}
+boots_hombres <- bootstraps(hombres)
+stats_hombres <- des_stats(boots_hombres)
+
+boots_mujeres <- bootstraps(mujeres)
+stats_mujeres <- des_stats(boots_mujeres)
+
+t.test(boots_hombres, boots_mujeres, var.equal = TRUE)
+```
+
+Gini standard error bootstrapping:
+
+$$
+se = \sqrt{\frac{1}{k-1} \sum_{j = 1}^k(G_j - \overline{G})^2}
+$$
+
+e)  Calcula el anterior inciso d) pero ahora segmentando a los hombres indígenas de los no indígenas y a las mujeres indígenas de las no indígenas. Comenta las diferencias de las medias de ingreso y de los Gini de los cuatro grupos segmentados.
+
+f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becker disponible en el portal y la presentación), arma una ecuación minceriana para evaluar los efectos de cada variable del Capital Humano en la muestra total.
+
+g)  Procede a evaluar el inciso f) realizando una ecuación ara hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
+
+h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos párrafos por ítem para comentar lo siguiente:
+
+\- ¿Es Guatemala un país con alta desigualdad?
+
+\- ¿Existen diferencias significativas por Sexo en el mercado laboral?
+
+\- ¿Es más alta la desigualdad entre hombres o entre mujeres y por qué?
+
+\- ¿Consideras que todas las diferencias de ingreso que encontraste en tu análisis son producto de la discriminación?
+
+\- ¿Cuáles son tus sugerencias para reducir las brechas de ingreso entre hombres y mujeres y fortalecer el camino al desarrollo?
