@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r message = TRUE, warning = TRUE, include = FALSE}
 pacman::p_load(tidyverse, kableExtra, magrittr, here, knitr,
-               patchwork, broom, e1071, DescTools, xtable)
+               patchwork, broom, e1071, DescTools)
 
 data <- read_csv(here("data.csv"), name_repair = "minimal")
 ```
@@ -36,9 +36,6 @@ salarios <-
          "aguinaldo" = P04C15B,
          "bono_vacacional" = P04C16B,
          "quinceavo_sueldo" = P04C17B,
-         "alimentación" = P04C18B,
-         "vivienda" = P04C19B,
-         "transporte" = P04C20B,
          "bono_productividad" = P04C21B
          ) %>% 
   mutate(Sexo = fct_recode(as_factor(Sexo), 
@@ -230,7 +227,7 @@ p3 <-
   geom_abline(color = "grey") +
   theme_bw() + 
   theme(legend.position = "none") +
-  annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .4) +
+  annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .3) +
   annotate("text", x = .25, y = .85, 
            label = paste("Índice de Gini = ", round(gini, 4)))
 
@@ -467,8 +464,16 @@ mincer_raw <-
          "edad" = PPA03,
          "educación" = P03A05B,
          "etnia" = PPA06,
+         "actividad" = P04A02,
          "salario" = P04C10,
-         "actividad" = P04A02
+         "horas_extra" = P04C11C,
+         "comisiones" = P04C12B,
+         "vacaciones" = P04C13B,
+         "bono_14" = P04C14B,
+         "aguinaldo" = P04C15B,
+         "bono_vacacional" = P04C16B,
+         "quinceavo_sueldo" = P04C17B,
+         "bono_productividad" = P04C21B
          ) %>% 
   mutate(sexo = fct_recode(as_factor(sexo), 
                            "Masc" = "1", 
@@ -479,8 +484,11 @@ mincer_raw <-
                             "Ladino" = "3",
                             "Extranjero" = "4",
                             "Maya" = "5")) %>% 
-  drop_na() %>% 
-  relocate(sexo, etnia)
+  relocate(sexo, etnia) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(total = rowSums(.[6:14])) %>% 
+  filter(salario != 0) %>% 
+  select(sexo:salario)
 
 mincer_one <- 
   mincer_raw %>% 
@@ -536,7 +544,7 @@ kbl(table_six,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.1942 \| Estadístico $F$: 475 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: 0.2207 \| Estadístico $F$: 613.2 (\< 2.2e-16)
 
 \normalsize
 
@@ -549,10 +557,18 @@ mincer <-
          "edad" = PPA03,
          "educación" = P03A05B,
          "etnia" = PPA06,
-         "salario" = P04C10,
          "actividad" = P04A02,
          "sector" = P04C25A,
-         "área" = AREA
+         "área" = AREA,
+         "salario" = P04C10,
+         "horas_extra" = P04C11C,
+         "comisiones" = P04C12B,
+         "vacaciones" = P04C13B,
+         "bono_14" = P04C14B,
+         "aguinaldo" = P04C15B,
+         "bono_vacacional" = P04C16B,
+         "quinceavo_sueldo" = P04C17B,
+         "bono_productividad" = P04C21B
          ) %>% 
   mutate(sexo = fct_recode(as_factor(sexo), 
                            "Masc" = "1", 
@@ -566,8 +582,11 @@ mincer <-
          área = fct_recode(as_factor(área),
                            "Rural" = "2",
                            "Urbana" = "1")) %>% 
-  drop_na() %>% 
-  relocate(sexo, etnia)
+  relocate(sexo, etnia) %>% 
+  mutate(across(where(is.numeric), ~ replace_na(.,0)),
+         total = rowSums(.[8:16])) %>% 
+  filter(salario != 0) %>% 
+  select(sexo:salario)
 
 mincer_two <- 
   mincer %>% 
@@ -636,7 +655,7 @@ kbl(table_seven,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.4479 \| Estadístico $F$: 536.8 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: 0.4627 \| Estadístico $F$: 627.2 (\< 2.2e-16)
 
 \normalsize
 
@@ -658,7 +677,7 @@ table_eight <-
     term == "sectorFormal" ~ "Sector formal",
     term == "etniaNo Maya" ~ "Autodenominación (no maya)"
   ),
-  p.value = "< 2e-12") %>% 
+  p.value = "< 2e-15") %>% 
   rename("Coeficiente" = term, "Valor estimado" = estimate,
          "Error estándar" = std.error, "Estadístico t" = statistic,
          "Valor p" = p.value)
@@ -699,7 +718,7 @@ kbl(table_eight,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.4985 \| Estadístico $F$: 322.1 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: 0.5253 \| Estadístico $F$: 392.5 (\< 2.2e-16)
 
 \normalsize
 
@@ -725,6 +744,6 @@ Björklund, A., & Kjellström, C. (2002). Estimating the return to investments i
 
 Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: Some Further Results\*. *Oxford Bulletin of Economics and Statistics*, *66*(3), 425--433. <https://doi.org/10.1111/j.1468-0084.2004.00086.x>
 
-*Hoover, G. & Yaya, M. (2010). Racial/Ethnic Differences in Income Inequality across US Regions.* Retrieved April 23, 2022, from [<https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>](https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z){.uri}
+*Hoover, G. & Yaya, M. (2010). Racial/Ethnic Differences in Income Inequality across US Regions.* Retrieved April 23, 2022, from [\<https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>](https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z){.uri}
 
 Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
