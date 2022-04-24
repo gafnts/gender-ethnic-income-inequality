@@ -452,9 +452,89 @@ kbl(table_five,
 
 f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becker disponible en el portal y la presentación), arma una ecuación minceriana para evaluar los efectos de cada variable del Capital Humano en la muestra total.
 
-```{r include = FALSE}
+$$
+ln \ w_i = f(s_i,x_i) = w_0 + \rho s_i + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i
+$$
 
+Donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis).
+
+```{r include = FALSE}
+mincer_raw <- 
+  data %>% 
+  select("sexo" = PPA02, 
+         "edad" = PPA03,
+         "educación" = P03A05B,
+         "etnia" = PPA06,
+         "salario" = P04C10,
+         "actividad" = P04A02
+         ) %>% 
+  mutate(sexo = fct_recode(as_factor(sexo), 
+                           "Masc" = "1", 
+                           "Fem" = "2"),
+         etnia = fct_recode(as_factor(etnia), 
+                            "Xina" = "1",
+                            "Garífuna" = "2",
+                            "Ladino" = "3",
+                            "Extranjero" = "4",
+                            "Maya" = "5")) %>% 
+  drop_na() %>% 
+  relocate(sexo, etnia)
+
+mincer_one <- 
+  mincer_raw %>% 
+  mutate(experiencia = edad - educación - 6) %>% 
+  select(salario, educación, experiencia)
 ```
+
+```{r include = FALSE}
+table_six <- 
+  lm(log(salario) ~ educación + experiencia + I(experiencia^2), mincer_one) %>% 
+  tidy() %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercepto", 
+    term == "educación" ~ "Educación", 
+    term == "experiencia" ~ "Experiencia", 
+    term == "I(experiencia^2)" ~ "Experiencia acumulada"
+  ),
+  p.value = "< 2e-16") %>% 
+  rename("Coeficiente" = term, "Valor estimado" = estimate,
+         "Error estándar" = std.error, "Estadístico t" = statistic,
+         "Valor p" = p.value)
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 6:} Función de ingresos de Mincer para la muestra completa
+
+\normalsize
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
+```
+```{r echo=FALSE}
+kbl(table_six, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(1, width = "4.5cm") %>% 
+  column_spec(2, width = "3cm") %>% 
+  column_spec(3, width = "3cm") %>% 
+  column_spec(4, width = "2.5cm")
+```
+
+\small
+
+\mbox{}\hfill $R^2$ ajustado: 0.1942 \| Estadístico $F$: 475 (\< 2.2e-16)
+
+\normalsize
 
 g)  Procede a evaluar el inciso f) realizando una ecuación ara hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
@@ -473,3 +553,17 @@ h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos 
 \- ¿Consideras que todas las diferencias de ingreso que encontraste en tu análisis son producto de la discriminación?
 
 \- ¿Cuáles son tus sugerencias para reducir las brechas de ingreso entre hombres y mujeres y fortalecer el camino al desarrollo?
+
+\newpage
+
+## Referencias
+
+\small
+
+Björklund, A., & Kjellström, C. (2002). Estimating the return to investments in education: How useful is the standard Mincer equation? *Economics of Education Review*, *21*(3), 195--210. [https://doi.org/10.1016/S0272-7757(01)00003-6](https://doi.org/10.1016/S0272-7757(01)00003-6)
+
+Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: Some Further Results\*. *Oxford Bulletin of Economics and Statistics*, *66*(3), 425--433. <https://doi.org/10.1111/j.1468-0084.2004.00086.x>
+
+Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
+
+*Racial/Ethnic Differences in Income Inequality across US Regions---Gary A. Hoover, Mehmet E. Yaya, 2010*. (n.d.). Retrieved April 23, 2022, from <https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>
