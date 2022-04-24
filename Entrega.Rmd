@@ -5,7 +5,7 @@ author:
   - "*Erik Angel*"
   - "*Andrés Bermúdez*"
   - "*Daniel Sandoval*"
-  - "*Gabriel Fuentes*"
+  - "*Gabriel A. Fuentes*"
 date: "*Abril, 2022*"
 output: pdf_document
 header-includes:
@@ -188,7 +188,7 @@ c)  Calcula el coeficiente de Gini de toda la muestra contenida en la base de da
 
 $$
 \tag{1}
-Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |
+Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |,
 $$
 
 donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. El coeficiente se encuentra entre cero y uno y su interpretación es sencilla. Números mayores en el índice corresponden a un mayor nivel de desigualdad en la muestra. Un índice de Gini de cero significa perfecta igualdad de ingresos mientras que un coeficiente de uno representa exactamente lo contrario.
@@ -452,11 +452,12 @@ kbl(table_five,
 
 f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becker disponible en el portal y la presentación), arma una ecuación minceriana para evaluar los efectos de cada variable del Capital Humano en la muestra total.
 
-$$
-ln \ w_i = f(s_i,x_i) = w_0 + \rho s_i + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i
-$$
+    $$
+    \tag{2}
+    ln \ w_i = f(s_i,x_i) = w_0 + \rho s_i + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i,
+    $$
 
-Donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis).
+donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis).
 
 ```{r include = FALSE}
 mincer_raw <- 
@@ -530,29 +531,186 @@ kbl(table_six,
   column_spec(4, width = "2.5cm")
 ```
 
+\renewcommand{\arraystretch}{1}
+
 \small
 
 \mbox{}\hfill $R^2$ ajustado: 0.1942 \| Estadístico $F$: 475 (\< 2.2e-16)
 
 \normalsize
 
-g)  Procede a evaluar el inciso f) realizando una ecuación ara hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
+g)  Procede a evaluar el inciso f) realizando una ecuación para hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
 ```{r include = FALSE}
+mincer <- 
+  data %>% 
+  select("sexo" = PPA02, 
+         "edad" = PPA03,
+         "educación" = P03A05B,
+         "etnia" = PPA06,
+         "salario" = P04C10,
+         "actividad" = P04A02,
+         "sector" = P04C25A,
+         "área" = AREA
+         ) %>% 
+  mutate(sexo = fct_recode(as_factor(sexo), 
+                           "Masc" = "1", 
+                           "Fem" = "2"),
+         etnia = fct_collapse(as_factor(etnia), 
+                            "Maya" = "5",
+                            "No Maya" = c("1", "2", "3", "4")),
+         sector = fct_collapse(as_factor(sector),
+                           "Informal" = c("2", "3", "4"),
+                           "Formal" = "1"),
+         área = fct_recode(as_factor(área),
+                           "Rural" = "2",
+                           "Urbana" = "1")) %>% 
+  drop_na() %>% 
+  relocate(sexo, etnia)
 
+mincer_two <- 
+  mincer %>% 
+  mutate(experiencia = edad - educación - 6) %>% 
+  select(salario, educación, experiencia, etnia, sector, área, sexo)
+
+mincer_two %<>% 
+  mutate(área = factor(área, levels = c("Rural", "Urbana")),
+          sector = factor(sector, levels = c("Informal", "Formal")),
+          etnia = factor(etnia, levels = c("Maya", "No Maya")))
 ```
+
+```{r include = FALSE}
+mincer_hombres <- 
+  mincer_two %>% 
+  filter(sexo == "Masc")
+
+table_seven <- 
+  lm(log(salario) ~ educación + experiencia + I(experiencia^2) + área + 
+       sector + etnia, mincer_hombres) %>% 
+  tidy() %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercepto", 
+    term == "educación" ~ "Educación", 
+    term == "experiencia" ~ "Experiencia", 
+    term == "I(experiencia^2)" ~ "Experiencia acumulada",
+    term == "áreaUrbana" ~ "Área urbana",
+    term == "sectorFormal" ~ "Sector formal",
+    term == "etniaNo Maya" ~ "Autodenominación (no maya)"
+  ),
+  p.value = "< 2e-16") %>% 
+  rename("Coeficiente" = term, "Valor estimado" = estimate,
+         "Error estándar" = std.error, "Estadístico t" = statistic,
+         "Valor p" = p.value)
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 7:} Función de ingresos de Mincer para hombres (controlando para área, sector y autodenominación étnica)
+
+\normalsize
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
+```
+```{r echo=FALSE}
+kbl(table_seven, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T) %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(1, width = "4.5cm") %>% 
+  column_spec(2, width = "3cm") %>% 
+  column_spec(3, width = "3cm") %>% 
+  column_spec(4, width = "2.5cm")
+```
+
+\renewcommand{\arraystretch}{1}
+
+\small
+
+\mbox{}\hfill $R^2$ ajustado: 0.4479 \| Estadístico $F$: 536.8 (\< 2.2e-16)
+
+\normalsize
+
+```{r include = FALSE}
+mincer_mujeres <- 
+  mincer_two %>% 
+  filter(sexo == "Fem")
+
+table_eight <- 
+  lm(log(salario) ~ educación + experiencia + I(experiencia^2) + área + 
+       sector + etnia, mincer_mujeres) %>% 
+  tidy() %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercepto", 
+    term == "educación" ~ "Educación", 
+    term == "experiencia" ~ "Experiencia", 
+    term == "I(experiencia^2)" ~ "Experiencia acumulada",
+    term == "áreaUrbana" ~ "Área urbana",
+    term == "sectorFormal" ~ "Sector formal",
+    term == "etniaNo Maya" ~ "Autodenominación (no maya)"
+  ),
+  p.value = "< 2e-12") %>% 
+  rename("Coeficiente" = term, "Valor estimado" = estimate,
+         "Error estándar" = std.error, "Estadístico t" = statistic,
+         "Valor p" = p.value)
+```
+
+```{=tex}
+\begin{center}
+
+\small
+
+\textbf{Cuadro 8:} Función de ingresos de Mincer para mujeres (controlando para área, sector y autodenominación étnica)
+
+\normalsize
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.3}
+
+\vspace{-3mm}
+```
+```{r echo=FALSE}
+kbl(table_eight, 
+    booktabs = T,
+    align = c("c")) %>%
+  kable_styling(font_size = 9,
+                full_width = T,
+                latex_options = "hold_position") %>% 
+  row_spec(0, bold = TRUE) %>% 
+  column_spec(1, width = "4.5cm") %>% 
+  column_spec(2, width = "3cm") %>% 
+  column_spec(3, width = "3cm") %>% 
+  column_spec(4, width = "2.5cm")
+```
+
+\renewcommand{\arraystretch}{1}
+
+\small
+
+\mbox{}\hfill $R^2$ ajustado: 0.4985 \| Estadístico $F$: 322.1 (\< 2.2e-16)
+
+\normalsize
 
 h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos párrafos por ítem para comentar lo siguiente:
 
-\- ¿Es Guatemala un país con alta desigualdad?
+--- ¿Es Guatemala un país con alta desigualdad?
 
-\- ¿Existen diferencias significativas por sexo en el mercado laboral?
+--- ¿Existen diferencias significativas por sexo en el mercado laboral?
 
-\- ¿Es más alta la desigualdad entre hombres o entre mujeres y por qué?
+--- ¿Es más alta la desigualdad entre hombres o entre mujeres y por qué?
 
-\- ¿Consideras que todas las diferencias de ingreso que encontraste en tu análisis son producto de la discriminación?
+--- ¿Consideras que todas las diferencias de ingreso que encontraste en tu análisis son producto de la discriminación?
 
-\- ¿Cuáles son tus sugerencias para reducir las brechas de ingreso entre hombres y mujeres y fortalecer el camino al desarrollo?
+--- ¿Cuáles son tus sugerencias para reducir las brechas de ingreso entre hombres y mujeres y fortalecer el camino al desarrollo?
 
 \newpage
 
