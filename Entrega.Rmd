@@ -39,8 +39,7 @@ salarios <-
          "alimentación" = P04C18B,
          "vivienda" = P04C19B,
          "transporte" = P04C20B,
-         "bono_productividad" = P04C21B,
-         "remesas" = P05A17B
+         "bono_productividad" = P04C21B
          ) %>% 
   mutate(Sexo = fct_recode(as_factor(Sexo), 
                            "Masc" = "1", 
@@ -231,7 +230,7 @@ p3 <-
   geom_abline(color = "grey") +
   theme_bw() + 
   theme(legend.position = "none") +
-  annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .2) +
+  annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .4) +
   annotate("text", x = .25, y = .85, 
            label = paste("Índice de Gini = ", round(gini, 4)))
 
@@ -420,6 +419,8 @@ table_five <-
   relocate(Grupo) %>% 
   bind_cols(t_test4)
 ```
+
+\newpage
 
 ```{=tex}
 \begin{center}
@@ -663,6 +664,8 @@ table_eight <-
          "Valor p" = p.value)
 ```
 
+\newpage
+
 ```{=tex}
 \begin{center}
 
@@ -722,6 +725,6 @@ Björklund, A., & Kjellström, C. (2002). Estimating the return to investments i
 
 Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: Some Further Results\*. *Oxford Bulletin of Economics and Statistics*, *66*(3), 425--433. <https://doi.org/10.1111/j.1468-0084.2004.00086.x>
 
-Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
+*Hoover, G. & Yaya, M. (2010). Racial/Ethnic Differences in Income Inequality across US Regions.* Retrieved April 23, 2022, from [<https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>](https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z){.uri}
 
-*Racial/Ethnic Differences in Income Inequality across US Regions---Gary A. Hoover, Mehmet E. Yaya, 2010*. (n.d.). Retrieved April 23, 2022, from <https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>
+Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
