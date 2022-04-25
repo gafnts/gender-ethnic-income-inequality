@@ -324,21 +324,21 @@ ingresos_hombres <-
   filter(Sexo == "Masc") %>% 
   mutate(Etnia = 
            fct_collapse(Etnia,
-                        Maya = c("Maya"),
-                        `No Maya` = c("Xina", "Garífuna", "Ladino", "Extranjero")))
+                        Indígena = c("Maya", "Xina", "Garífuna"),
+                        `No indígena` = c("Ladino", "Extranjero")))
 
 ingresos_mujeres <- 
   ingresos %>% 
   filter(Sexo == "Fem") %>% 
   mutate(Etnia = 
            fct_collapse(Etnia,
-                        Maya = c("Maya"),
-                        `No Maya` = c("Xina", "Garífuna", "Ladino", "Extranjero")))
+                        Indígena = c("Maya", "Xina", "Garífuna"),
+                        `No indígena` = c("Ladino", "Extranjero")))
 ```
 
 ```{r include = FALSE}
-hombres_maya <- ingresos_hombres %>% filter(Etnia == "Maya") %>% select(Ingreso)
-hombres_no_maya <- ingresos_hombres %>% filter(Etnia == "No Maya") %>% select(Ingreso)
+hombres_maya <- ingresos_hombres %>% filter(Etnia == "Indígena") %>% select(Ingreso)
+hombres_no_maya <- ingresos_hombres %>% filter(Etnia == "No indígena") %>% select(Ingreso)
 
 boots_hombres_maya <- bootstraps(hombres_maya)
 stats_hombres_maya <- des_stats(boots_hombres_maya)
@@ -357,7 +357,7 @@ t_test3 <-
 table_four <- 
   stats_hombres_maya %>% 
   bind_rows(stats_hombres_no_maya) %>% 
-  mutate(Grupo = c("Maya", "No Maya")) %>% 
+  mutate(Grupo = c("Indígena", "No indígena")) %>% 
   relocate(Grupo) %>% 
   bind_cols(t_test3)
 ```
@@ -383,7 +383,8 @@ kbl(table_four,
     align = c("c")) %>%
   kable_styling(font_size = 9,
                 full_width = T) %>% 
-  row_spec(0, bold = TRUE) %>% 
+  row_spec(0, bold = TRUE) %>%
+  column_spec(1, width = "2cm") %>% 
   column_spec(3, width = "2cm") %>% 
   column_spec(7, width = "0.5cm") %>% 
   column_spec(8, width = "2cm")
@@ -392,8 +393,8 @@ kbl(table_four,
 \renewcommand{\arraystretch}{1}
 
 ```{r include = FALSE}
-mujeres_maya <- ingresos_mujeres %>% filter(Etnia == "Maya") %>% select(Ingreso)
-mujeres_no_maya <- ingresos_mujeres %>% filter(Etnia == "No Maya") %>% select(Ingreso)
+mujeres_maya <- ingresos_mujeres %>% filter(Etnia == "Indígena") %>% select(Ingreso)
+mujeres_no_maya <- ingresos_mujeres %>% filter(Etnia == "No indígena") %>% select(Ingreso)
 
 boots_mujeres_maya <- bootstraps(mujeres_maya)
 stats_mujeres_maya <- des_stats(boots_mujeres_maya)
@@ -412,7 +413,7 @@ t_test4 <-
 table_five <- 
   stats_mujeres_maya %>% 
   bind_rows(stats_mujeres_no_maya) %>% 
-  mutate(Grupo = c("Maya", "No Maya")) %>% 
+  mutate(Grupo = c("Indígena", "No indígena")) %>% 
   relocate(Grupo) %>% 
   bind_cols(t_test4)
 ```
@@ -441,6 +442,7 @@ kbl(table_five,
   kable_styling(font_size = 9,
                 full_width = T) %>% 
   row_spec(0, bold = TRUE) %>% 
+  column_spec(1, width = "2cm") %>% 
   column_spec(3, width = "2cm") %>% 
   column_spec(7, width = "0.5cm") %>% 
   column_spec(8, width = "2cm")
@@ -574,8 +576,8 @@ mincer <-
                            "Masc" = "1", 
                            "Fem" = "2"),
          etnia = fct_collapse(as_factor(etnia), 
-                            "Maya" = "5",
-                            "No Maya" = c("1", "2", "3", "4")),
+                            "Indígena" = c("5", "1", "2"),
+                            "No indígena" = c("3", "4")),
          sector = fct_collapse(as_factor(sector),
                            "Informal" = c("2", "3", "4"),
                            "Formal" = "1"),
@@ -596,7 +598,7 @@ mincer_two <-
 mincer_two %<>% 
   mutate(área = factor(área, levels = c("Rural", "Urbana")),
           sector = factor(sector, levels = c("Informal", "Formal")),
-          etnia = factor(etnia, levels = c("Maya", "No Maya")))
+          etnia = factor(etnia, levels = c("Indígena", "No indígena")))
 ```
 
 ```{r include = FALSE}
@@ -615,7 +617,7 @@ table_seven <-
     term == "I(experiencia^2)" ~ "Experiencia acumulada",
     term == "áreaUrbana" ~ "Área urbana",
     term == "sectorFormal" ~ "Sector formal",
-    term == "etniaNo Maya" ~ "Autodenominación (no maya)"
+    term == "etniaNo indígena" ~ "Autodenominación (no indígena)"
   ),
   p.value = "< 2e-16") %>% 
   rename("Coeficiente" = term, "Valor estimado" = estimate,
@@ -628,7 +630,7 @@ table_seven <-
 
 \small
 
-\textbf{Cuadro 7:} Función de ingresos de Mincer para hombres (controlando para área, sector y autodenominación étnica)
+\textbf{Cuadro 7:} Función de ingresos de Mincer para hombres (controlando por área, sector y autodenominación étnica)
 
 \normalsize
 
@@ -645,17 +647,18 @@ kbl(table_seven,
   kable_styling(font_size = 9,
                 full_width = T) %>% 
   row_spec(0, bold = TRUE) %>% 
-  column_spec(1, width = "4.5cm") %>% 
+  column_spec(1, width = "5cm") %>% 
   column_spec(2, width = "3cm") %>% 
   column_spec(3, width = "3cm") %>% 
-  column_spec(4, width = "2.5cm")
+  column_spec(4, width = "2.5cm") %>% 
+  column_spec(5, width = "2cm")
 ```
 
 \renewcommand{\arraystretch}{1}
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.4627 \| Estadístico $F$: 627.2 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: 0.4622 \| Estadístico $F$: 625.9 (\< 2.2e-16)
 
 \normalsize
 
@@ -675,9 +678,9 @@ table_eight <-
     term == "I(experiencia^2)" ~ "Experiencia acumulada",
     term == "áreaUrbana" ~ "Área urbana",
     term == "sectorFormal" ~ "Sector formal",
-    term == "etniaNo Maya" ~ "Autodenominación (no maya)"
+    term == "etniaNo indígena" ~ "Autodenominación (no indígena)"
   ),
-  p.value = "< 2e-15") %>% 
+  p.value = "< 2e-16") %>% 
   rename("Coeficiente" = term, "Valor estimado" = estimate,
          "Error estándar" = std.error, "Estadístico t" = statistic,
          "Valor p" = p.value)
@@ -690,7 +693,7 @@ table_eight <-
 
 \small
 
-\textbf{Cuadro 8:} Función de ingresos de Mincer para mujeres (controlando para área, sector y autodenominación étnica)
+\textbf{Cuadro 8:} Función de ingresos de Mincer para mujeres (controlando por área, sector y autodenominación étnica)
 
 \normalsize
 
@@ -708,17 +711,18 @@ kbl(table_eight,
                 full_width = T,
                 latex_options = "hold_position") %>% 
   row_spec(0, bold = TRUE) %>% 
-  column_spec(1, width = "4.5cm") %>% 
+  column_spec(1, width = "5cm") %>% 
   column_spec(2, width = "3cm") %>% 
   column_spec(3, width = "3cm") %>% 
-  column_spec(4, width = "2.5cm")
+  column_spec(4, width = "2.5cm") %>% 
+  column_spec(5, width = "2cm")
 ```
 
 \renewcommand{\arraystretch}{1}
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.5253 \| Estadístico $F$: 392.5 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: 0.5269 \| Estadístico $F$: 393 (\< 2.2e-16)
 
 \normalsize
 
