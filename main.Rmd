@@ -17,57 +17,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r message = TRUE, warning = TRUE, include = FALSE}
-pacman::p_load(tidyverse, kableExtra, magrittr, here, knitr,
+pacman::p_load(tidyverse, magrittr, here, knitr, kableExtra,
                patchwork, broom, e1071, DescTools)
 
-data <- read_csv(here("data.csv"), name_repair = "minimal")
-```
+data <- 
+  read_csv(here("data.csv"))
 
-```{r include = FALSE}
-sujetos <- 
-  data %>% 
-  filter(PPA04C < 2004) %>% 
-  select(NUM_HOGAR, ID, P04C01) %>% 
-  drop_na() %>% 
-  select(-P04C01)
-```
-
-```{r include = FALSE}
-salarios <- 
-  sujetos %>% 
-  left_join(data) %>% 
-  select("Sexo" = PPA02, 
-         "Etnia" = PPA06,
-         "Salario" = P04C10,
-         "horas_extra" = P04C11C,
-         "comisiones" = P04C12B,
-         "vacaciones" = P04C13B,
-         "bono_14" = P04C14B,
-         "aguinaldo" = P04C15B,
-         "bono_vacacional" = P04C16B,
-         "quinceavo_sueldo" = P04C17B,
-         "alimentación" = P04C18B,
-         "vivienda" = P04C19B,
-         "transporte" = P04C20B,
-         "bono_productividad" = P04C21B
-         ) %>% 
-  mutate(Sexo = fct_recode(as_factor(Sexo), 
-                           "Masc" = "1", 
-                           "Fem" = "2"),
-         Etnia = fct_recode(as_factor(Etnia), 
-                            "Xina" = "1",
-                            "Garífuna" = "2",
-                            "Ladino" = "3",
-                            "Extranjero" = "4",
-                            "Maya" = "5"),
-         across(where(is.numeric), ~ replace_na(.,0)),
-         Ingreso = rowSums(across(where(is.numeric)))) %>% 
-  relocate(Sexo, Etnia, Ingreso)
-
-ingresos <- 
-  salarios %>% 
-  select(Sexo, Etnia, Ingreso) # %>% 
-  #filter(Ingreso != 0)
+data %<>% 
+  mutate(
+    hogar = as_factor(hogar),
+    id = as_factor(id),
+    sexo = as_factor(sexo),
+    etnia = as_factor(etnia),
+    sector = as_factor(sector),
+    area = as_factor(area),
+  )
 ```
 
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
@@ -91,17 +55,16 @@ El cuadro 1 muestra las estadísticas descriptivas de esta variable cuando la mu
 ```
 ```{r include = FALSE}
 table_one <- 
-  ingresos %>% 
-  group_by(Sexo) %>% 
-  select(-Etnia) %>% 
-  summarise(Media = round(mean(Ingreso), 2),
-            Mediana = round(median(Ingreso), 2),
-            `Desv. Est.` = round(sd(Ingreso), 2),
-            Mínimo = round(min(Ingreso), 2),
-            Máximo = round(max(Ingreso), 2),
-            Asimetría = round(skewness(Ingreso), 2),
-            Curtosis = round(kurtosis(Ingreso), 2),
-            `Obs.` = length(Sexo)
+  data %>% 
+  group_by(sexo) %>% 
+  summarise(Media = round(mean(ingreso), 2),
+            Mediana = round(median(ingreso), 2),
+            `Desv. Est.` = round(sd(ingreso), 2),
+            Mínimo = round(min(ingreso), 2),
+            Máximo = round(max(ingreso), 2),
+            Asimetría = round(skewness(ingreso), 2),
+            Curtosis = round(kurtosis(ingreso), 2),
+            `Obs.` = length(sexo)
   )
 ```
 
@@ -131,14 +94,16 @@ kbl(table_one,
 ```
 ```{r echo = FALSE, fig.dim = c(10, 3)}
 p1 <- 
-  ingresos %>% 
+  data %>% 
+  rename("Sexo" = sexo, "Ingreso" = ingreso) %>% 
   ggplot(aes(Ingreso, color = Sexo)) +
   geom_freqpoly(bins = 100) +
   theme_bw() +
   labs(y = NULL)
 
 p2 <- 
-  ingresos %>% 
+  data %>% 
+  rename("Sexo" = sexo, "Ingreso" = ingreso) %>% 
   ggplot(aes(Sexo, Ingreso)) +
   geom_boxplot() +
   theme_bw() +
@@ -165,8 +130,8 @@ b)  Compara ahora las medias y determina si estadísticamente son distintas (el 
 \renewcommand{\arraystretch}{1.3}
 ```
 ```{r include = FALSE}
-hombres <- ingresos %>% filter(Sexo == "Masc") %>% select(Ingreso)
-mujeres <- ingresos %>%  filter(Sexo == "Fem") %>% select(Ingreso)
+hombres <- data %>% filter(sexo == "Masc") %>% select(ingreso)
+mujeres <- data %>%  filter(sexo == "Fem") %>% select(ingreso)
 ```
 
 ```{r include = FALSE}
@@ -207,7 +172,7 @@ $$
 donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. El coeficiente se encuentra entre cero y uno y su interpretación es sencilla. Números mayores en el índice corresponden a un mayor nivel de desigualdad en la muestra. Un índice de Gini de cero significa perfecta igualdad de ingresos mientras que un coeficiente de uno representa exactamente lo contrario.
 
 ```{r include = FALSE}
-gini <- Gini(ingresos %>% pull(3))
+gini <- Gini(data %>% pull(9))
 ```
 
 ```{=tex}
@@ -224,7 +189,7 @@ gini <- Gini(ingresos %>% pull(3))
 \vspace{-3mm}
 ```
 ```{r include = FALSE}
-lorentz <- Lc(ingresos %>% pull(3))
+lorentz <- Lc(data %>% pull(9))
 p <- lorentz[1]
 l <- lorentz[2]
 lor <- bind_cols(p, l)
@@ -343,25 +308,17 @@ De la misma manera se realizó el método de Bootstrap para el análisis a conti
 
 ```{r include = FALSE}
 ingresos_hombres <- 
-  ingresos %>% 
-  filter(Sexo == "Masc") %>% 
-  mutate(Etnia = 
-           fct_collapse(Etnia,
-                        Indígena = c("Maya", "Xina", "Garífuna"),
-                        `No indígena` = c("Ladino", "Extranjero")))
+  data %>% 
+  filter(sexo == "Masc")
 
 ingresos_mujeres <- 
-  ingresos %>% 
-  filter(Sexo == "Fem") %>% 
-  mutate(Etnia = 
-           fct_collapse(Etnia,
-                        Indígena = c("Maya", "Xina", "Garífuna"),
-                        `No indígena` = c("Ladino", "Extranjero")))
+  data %>% 
+  filter(sexo == "Fem")
 ```
 
 ```{r include = FALSE}
-hombres_maya <- ingresos_hombres %>% filter(Etnia == "Indígena") %>% select(Ingreso)
-hombres_no_maya <- ingresos_hombres %>% filter(Etnia == "No indígena") %>% select(Ingreso)
+hombres_maya <- ingresos_hombres %>% filter(etnia == "Indígena") %>% select(ingreso)
+hombres_no_maya <- ingresos_hombres %>% filter(etnia == "No indígena") %>% select(ingreso)
 
 boots_hombres_maya <- bootstraps(hombres_maya)
 stats_hombres_maya <- des_stats(boots_hombres_maya)
@@ -418,8 +375,8 @@ kbl(table_four,
 En segundo lugar, en el cuadro 5 se encuentra el coeficiente de Gini para mujeres con la misma clasificación por autodenominación étnica. En este caso se repite el patrón donde una mujer no indígena presenta un coeficiente de Gini inferior, donde la media de una mujer no indígena se encuentra en 0.5083 mientras que para una mujer indígena es de 0.6545, los intervalos igualmente demuestran esta desigualdad con respecto a la autodenominación étnica. Y de igual forma se comprueba estadísticamente a partir de una prueba t la diferencia estadísticamente significativa entre un coeficiente de Gini con respecto al otro, en este caso de mujeres indígenas y no indígenas. Una conclusión a la que se puede llegar estadísticamente por estos resultados es que es conveniente tanto el ser hombre como el ser no indígena para afrontar una desigualdad inferior, lo cual es realmente preocupante.
 
 ```{r include = FALSE}
-mujeres_maya <- ingresos_mujeres %>% filter(Etnia == "Indígena") %>% select(Ingreso)
-mujeres_no_maya <- ingresos_mujeres %>% filter(Etnia == "No indígena") %>% select(Ingreso)
+mujeres_maya <- ingresos_mujeres %>% filter(etnia == "Indígena") %>% select(ingreso)
+mujeres_no_maya <- ingresos_mujeres %>% filter(etnia == "No indígena") %>% select(ingreso)
 
 boots_mujeres_maya <- bootstraps(mujeres_maya)
 stats_mujeres_maya <- des_stats(boots_mujeres_maya)
@@ -491,51 +448,18 @@ La ecuación toma en cuenta algunos supuestos, entre ellos; el retorno de la edu
 Al plantear la ecuación Minceriana, según los resultados obtenidos los años de educación y experiencia tienen una relación positiva con el ingreso y son estadísticamente significativas. La tasa de rentabilidad de la educación es 13.3% , lo que indica que al aumentar los años de educación los ingresos de los individuos aumentan.
 
 ```{r include = FALSE}
-mincer_raw <- 
-  sujetos %>% 
-  left_join(data) %>% 
-  select("sexo" = PPA02, 
-         "edad" = PPA03,
-         "educación" = P03A05B,
-         "etnia" = PPA06,
-         "actividad" = P04A02,
-         "salario" = P04C10,
-         "horas_extra" = P04C11C,
-         "comisiones" = P04C12B,
-         "vacaciones" = P04C13B,
-         "bono_14" = P04C14B,
-         "aguinaldo" = P04C15B,
-         "bono_vacacional" = P04C16B,
-         "quinceavo_sueldo" = P04C17B,
-         "alimentación" = P04C18B,
-         "vivienda" = P04C19B,
-         "transporte" = P04C20B,
-         "bono_productividad" = P04C21B
-         ) %>% 
-  mutate(sexo = fct_recode(as_factor(sexo), 
-                           "Masc" = "1", 
-                           "Fem" = "2"),
-         etnia = fct_recode(as_factor(etnia), 
-                            "Xina" = "1",
-                            "Garífuna" = "2",
-                            "Ladino" = "3",
-                            "Extranjero" = "4",
-                            "Maya" = "5")) %>% 
-  relocate(sexo, etnia) %>% 
-  replace(is.na(.), 0) %>% 
-  mutate(total = rowSums(.[6:17])) %>% 
-  filter(salario != 0) %>% 
-  select(sexo:salario)
-
-mincer_one <- 
-  mincer_raw %>% 
-  mutate(experiencia = edad - educación - 6) %>% 
-  select(salario, educación, experiencia)
+mincer <- 
+  data %>% 
+  mutate(experiencia = edad - educacion - 6) %>% 
+  filter(ingreso > 0)
 ```
 
 ```{r include = FALSE}
+lm_one <- lm(log(ingreso) ~ educacion + experiencia + I(experiencia^2), mincer)
+summary_one <- lm_one %>% summary()
+
 table_six <- 
-  lm(log(salario) ~ educación + experiencia + I(experiencia^2), mincer_one) %>% 
+  lm_one %>% 
   tidy() %>% 
   mutate(term = case_when(
     term == "(Intercept)" ~ "Intercepto", 
@@ -581,7 +505,7 @@ kbl(table_six,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.2207 \| Estadístico $F$: 613.2 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: `r summary_one$adj.r.squared` \| Estadístico $F$: `r summary_one$fstatistic[1]` (\< 2.2e-16)
 
 \normalsize
 
@@ -594,54 +518,9 @@ En ambos modelos, todas las variables son estadísticamente significativas. Sin 
 Respecto al resto de variables estudiadas en el modelo, todas tienen una relación positiva con los ingresos. Sin embargo, el pertenecer al sector formal es la variable con mayor peso dentro del modelo. Al ser parte del sector formal los individuos tienen acceso a un salario mínimo, aunque en Guatemala este no es suficiente para cubrir todas las necesidades básicas, ofrecen estabilidad en los ingresos y algunas prestaciones adicionales.
 
 ```{r include = FALSE}
-mincer <- 
-  sujetos %>% 
-  left_join(data) %>% 
-  select("sexo" = PPA02, 
-         "edad" = PPA03,
-         "educación" = P03A05B,
-         "etnia" = PPA06,
-         "actividad" = P04A02,
-         "sector" = P04C25A,
-         "área" = AREA,
-         "salario" = P04C10,
-         "horas_extra" = P04C11C,
-         "comisiones" = P04C12B,
-         "vacaciones" = P04C13B,
-         "bono_14" = P04C14B,
-         "aguinaldo" = P04C15B,
-         "bono_vacacional" = P04C16B,
-         "quinceavo_sueldo" = P04C17B,
-         "alimentación" = P04C18B,
-         "vivienda" = P04C19B,
-         "transporte" = P04C20B,
-         "bono_productividad" = P04C21B
-         ) %>% 
-  mutate(sexo = fct_recode(as_factor(sexo), 
-                           "Masc" = "1", 
-                           "Fem" = "2"),
-         etnia = fct_collapse(as_factor(etnia), 
-                            "Indígena" = c("5", "1", "2"),
-                            "No indígena" = c("3", "4")),
-         sector = fct_collapse(as_factor(sector),
-                           "Informal" = c("2", "3", "4"),
-                           "Formal" = "1"),
-         área = fct_recode(as_factor(área),
-                           "Rural" = "2",
-                           "Urbana" = "1")) %>% 
-  relocate(sexo, etnia) %>% 
-  mutate(across(where(is.numeric), ~ replace_na(.,0)),
-         total = rowSums(.[8:19])) %>% 
-  filter(salario != 0) %>% 
-  select(sexo:salario)
-
 mincer_two <- 
   mincer %>% 
-  mutate(experiencia = edad - educación - 6) %>% 
-  select(salario, educación, experiencia, etnia, sector, área, sexo)
-
-mincer_two %<>% 
-  mutate(área = factor(área, levels = c("Rural", "Urbana")),
+  mutate(area = factor(area, levels = c("Rural", "Urbana")),
           sector = factor(sector, levels = c("Informal", "Formal")),
           etnia = factor(etnia, levels = c("Indígena", "No indígena")))
 ```
@@ -651,16 +530,19 @@ mincer_hombres <-
   mincer_two %>% 
   filter(sexo == "Masc")
 
+lm_two <- lm(log(ingreso) ~ educacion + experiencia + I(experiencia^2) + area + 
+               sector + etnia, mincer_hombres)
+summary_two <- lm_two %>% summary()
+
 table_seven <- 
-  lm(log(salario) ~ educación + experiencia + I(experiencia^2) + área + 
-       sector + etnia, mincer_hombres) %>% 
+  lm_two %>% 
   tidy() %>% 
   mutate(term = case_when(
     term == "(Intercept)" ~ "Intercepto", 
-    term == "educación" ~ "Educación", 
+    term == "educacion" ~ "Educación", 
     term == "experiencia" ~ "Experiencia", 
     term == "I(experiencia^2)" ~ "Experiencia acumulada",
-    term == "áreaUrbana" ~ "Área (urbana)",
+    term == "areaUrbana" ~ "Área (urbana)",
     term == "sectorFormal" ~ "Sector (formal)",
     term == "etniaNo indígena" ~ "Autodenominación (no indígena)"
   ),
@@ -703,7 +585,7 @@ kbl(table_seven,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.4622 \| Estadístico $F$: 625.9 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: `r summary_two$adj.r.squared` \| Estadístico $F$: `r summary_two$fstatistic[1]` (\< 2.2e-16)
 
 \normalsize
 
@@ -712,20 +594,24 @@ mincer_mujeres <-
   mincer_two %>% 
   filter(sexo == "Fem")
 
+lm_three <- lm(log(ingreso) ~ educacion + experiencia + I(experiencia^2) + area + 
+               sector + etnia, mincer_mujeres)
+summary_three <- lm_three %>% summary()
+
 table_eight <- 
-  lm(log(salario) ~ educación + experiencia + I(experiencia^2) + área + 
-       sector + etnia, mincer_mujeres) %>% 
+  lm_three %>% 
   tidy() %>% 
   mutate(term = case_when(
     term == "(Intercept)" ~ "Intercepto", 
-    term == "educación" ~ "Educación", 
+    term == "educacion" ~ "Educación", 
     term == "experiencia" ~ "Experiencia", 
     term == "I(experiencia^2)" ~ "Experiencia acumulada",
-    term == "áreaUrbana" ~ "Área urbana",
-    term == "sectorFormal" ~ "Sector formal",
+    term == "areaUrbana" ~ "Área (urbana)",
+    term == "sectorFormal" ~ "Sector (formal)",
     term == "etniaNo indígena" ~ "Autodenominación (no indígena)"
   ),
-  p.value = "< 2e-16") %>% 
+  p.value = c("< 2e-16", "< 2e-16", "2.59e-16", 
+              "9.07e-14", "2.77e-11", "< 2e-16", "4.10e-16")) %>% 
   rename("Coeficiente" = term, "Valor estimado" = estimate,
          "Error estándar" = std.error, "Estadístico t" = statistic,
          "Valor p" = p.value)
@@ -767,7 +653,7 @@ kbl(table_eight,
 
 \small
 
-\mbox{}\hfill $R^2$ ajustado: 0.5269 \| Estadístico $F$: 393 (\< 2.2e-16)
+\mbox{}\hfill $R^2$ ajustado: `r summary_three$adj.r.squared` \| Estadístico $F$: `r summary_three$fstatistic[1]` (\< 2.2e-16)
 
 \normalsize
 
