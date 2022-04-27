@@ -463,7 +463,7 @@ table_six <-
   tidy() %>% 
   mutate(term = case_when(
     term == "(Intercept)" ~ "Intercepto", 
-    term == "educación" ~ "Educación", 
+    term == "educacion" ~ "Educación", 
     term == "experiencia" ~ "Experiencia", 
     term == "I(experiencia^2)" ~ "Experiencia acumulada"
   ),
