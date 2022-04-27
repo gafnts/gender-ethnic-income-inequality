@@ -565,12 +565,6 @@ Una estimación de la ecuación minceriana por medio de mínimos cuadrados ordin
 
 g)  Procede a evaluar el inciso f) realizando una ecuación para hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
-Tomando en cuenta el planteamiento anterior, se realizó un modelo para contrastar los resultados entre hombres y mujeres. De la misma forma se incluyeron 3 variables dicotómicas, definidas como: Área Urbana (1), Sector Formal (1), No Indígena (1)
-
-En ambos modelos, todas las variables son estadísticamente significativas. Sin embargo, el modelo de mujeres presenta un R2 mayor. Se evidenció que la tasa de rentabilidad de la educación es mayor para las mujeres que para los hombres, 8% y 6% respectivamente. Esto se puede explicar ya que en Guatemala, las mujeres tienen un menor acceso a educación que los hombres. Caso contrario para la experiencia, esta variable tiene un mayor peso para el ingreso de los hombres que de las mujeres.
-
-Respecto al resto de variables estudiadas en el modelo, todas tienen una relación positiva con los ingresos. Sin embargo, el pertenecer al sector formal es la variable con mayor peso dentro del modelo. Al ser parte del sector formal los individuos tienen acceso a un salario mínimo, aunque en Guatemala este no es suficiente para cubrir todas las necesidades básicas, ofrecen estabilidad en los ingresos y algunas prestaciones adicionales.
-
 ```{r include = FALSE}
 mincer_two <- 
   mincer %>% 
@@ -643,6 +637,8 @@ kbl(table_seven,
 
 \normalsize
 
+\vspace{3mm}
+
 ```{r include = FALSE}
 mincer_mujeres <- 
   mincer_two %>% 
@@ -670,6 +666,12 @@ table_eight <-
          "Error estándar" = std.error, "Estadístico t" = statistic,
          "Valor p" = p.value)
 ```
+
+Los cuadros 7 y 8 presentan los resultados de regresiones mincerianas en las que la muestra general es segregada por sexo. Esta vez, tres variables dicotómicas son tomadas en consideración: una para diferenciar si el individuo reside en el área urbana o rural, otra para distinguir si este participa dentro del sector formal o informal y la última para considerar la autodenominación étnica de los individuos, clasificada entre "indígena" y "no indígena", como en apartados anteriores. En ambos modelos, todas las variables son estadísticamente significativas, tanto individualmente como en conjunto. Además, ambas regresiones cuentan con magnitudes similares en el coeficiente de determinación, sugiriendo que esta especificación explica en aproximadamente un `r round(summary_two$adj.r.squared, 2)* 100`% la variación en el logaritmo de los ingresos.
+
+Los resultados evidencian que la tasa de retorno de la educación es mayor para las mujeres que para los hombres, `r round(lm_three %>% tidy() %>% slice(2) %>% pull(2), 3) * 100`% y `r round(lm_two %>% tidy() %>% slice(2) %>% pull(2), 3) * 100`%, respectivamente. Esta diferencia entre las tasas de retorno puede deberse a que, en Guatemala, las mujeres tienen un menor acceso a educación que los hombres, por lo que un mayor nivel educativo para ellas representa actualmente una alta probabilidad de generar flujos de ingresos más elevados. Por otra parte, el coeficiente que mide la relación entre la experiencia laboral y el logaritmo de los ingresos tiene un peso ligeramente mayor en el grupo de hombres (`r round(lm_two %>% tidy() %>% slice(3) %>% pull(2), 3) * 100`%) que en el de mujeres (`r round(lm_three %>% tidy() %>% slice(3) %>% pull(2), 3) * 100`%).
+
+En lo que respecta al resto de variables consideradas dentro del modelo, todas tienen una relación positiva con los ingresos. Sin embargo, la variable dicotómica que divide a las muestras entre participantes del sector formal y aquellos individuos que trabajan en el sector informal presenta el coeficiente con mayor peso en las regresiones, principalmente en la regresión que considera a la población femenina que participa dentro de la fuerza laboral. Por lo tanto, es posible observar que aquellos individuos que residen en áreas rurales, participan en el sector informal y se autodenominan como maya, xinca o garífuna perciben, en promedio, salarios más bajos.
 
 ```{=tex}
 \begin{center}
