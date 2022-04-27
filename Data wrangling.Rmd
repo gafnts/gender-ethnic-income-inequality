@@ -1,0 +1,65 @@
+# Data wrangling
+
+```{r}
+pacman::p_load(tidyverse, here)
+
+enei <- 
+  read_csv(here("enei.csv"), name_repair = "minimal") %>% 
+  mutate(hogar = as_factor(NUM_HOGAR),
+         id = as_factor(ID),
+         edad = PPA03,
+         trabajos = as_factor(P04C01))
+```
+
+```{r}
+sujetos <- 
+  enei %>% 
+  # Mayores de 15 años
+  filter(edad > 15) %>% 
+  # Con uno o más trabajos
+  select(hogar, id, trabajos) %>% 
+  drop_na() %>% 
+  select(-trabajos)
+```
+
+```{r}
+data <- 
+  sujetos %>% 
+  left_join(enei) %>% 
+  select(hogar, id,
+         "sexo" = PPA02, #
+         "edad" = PPA03,
+         "etnia" = PPA06, #
+         "sector" = P04C25A, #
+         "área" = AREA, #
+         "educación" = P03A05B,
+         "salario" = P04C10,
+         "horas_extra" = P04C11C,
+         "comisiones" = P04C12B,
+         "vacaciones" = P04C13B,
+         "bono_14" = P04C14B,
+         "aguinaldo" = P04C15B,
+         "bono_vacacional" = P04C16B,
+         "quinceavo_sueldo" = P04C17B,
+         "alimentación" = P04C18B,
+         "vivienda" = P04C19B,
+         "transporte" = P04C20B,
+         "bono_productividad" = P04C21B
+         ) %>% 
+  mutate(sexo = fct_recode(as_factor(sexo), 
+                           "Masc" = "1", 
+                           "Fem" = "2"),
+         etnia = fct_collapse(as_factor(etnia), 
+                            "Indígena" = c("5", "1", "2"),
+                            "No indígena" = c("3", "4")),
+         sector = fct_collapse(as_factor(sector),
+                           "Informal" = c("2", "3", "4"),
+                           "Formal" = "1"),
+         área = fct_recode(as_factor(área),
+                           "Rural" = "2",
+                           "Urbana" = "1")) %>% 
+  mutate(across(where(is.numeric), ~ replace_na(., 0)),
+         ingreso = rowSums(across(salario:bono_productividad))) %>% 
+  select(hogar, id, sexo, edad, etnia, sector, área, educación, ingreso) %>% 
+  write_csv(here("data.csv"))
+```
