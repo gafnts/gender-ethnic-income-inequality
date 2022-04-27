@@ -36,9 +36,9 @@ data %<>%
 
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
 
-En nuestro análisis, los sujetos se definen como todos los individuos que cuentan con la edad mínima para trabajar (15 años) o más y que permanecen ocupados en uno o más trabajos. Además, el ingreso de las personas está definido como la sumatoria de su salario base más sus ingresos por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como subsidios por alimentación, vivienda y transporte.
+En nuestro análisis, los sujetos se definen como todos los individuos que cuentan con la edad mínima para trabajar (15 años) o más y que permanecen ocupados en uno o más trabajos. Además, el ingreso de las personas está definido como la sumatoria de su salario base más sus ingresos por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como cobertura de viáticos por motivo de alimentación, vivienda y transporte.
 
-El cuadro 1 muestra las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Es importante tomar en consideración que existe un desequilibrio de clases dado a que la muestra presenta el doble de observaciones para el género masculino. Las estadísticas descriptivas demuestran que las funciones de densidad de probabilidad de cada sexo no se distribuyen normalmente, más bien, el estadístico de asimetría y curtosis indican que las mismas se encuentran sustancialmente sesgadas hacia la derecha y que ambas, en términos de exceso de curtosis, presentan un comportamiento platicúrtico. Es decir, los ingresos de la muestra se distribuyen tal y como se esperaría, por medio de una distribución de pareto.
+El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. De tal forma, es posible apreciar que el ingreso medio es más elevado para el sexo masculino por aproximadamente 300 quetzales. Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que la marcada brecha salarial por género en el país se explica debido a que la participación de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
 
 ```{=tex}
 \begin{center}
@@ -114,6 +114,15 @@ p2 <-
 
 b)  Compara ahora las medias y determina si estadísticamente son distintas (el hecho de que los valores absolutos sean distintos no necesariamente significa que estadísticamente lo sean). Presenta tu cálculo y la evidencia para afirmar tu respuesta.
 
+Una prueba $t$ de Welch es utilizada en este caso debido a su mayor robustez durante situaciones donde tanto los tamaños como las varianzas de ambas muestras difieren entre sí. El estadístico $t$ de las medias muestrales se computa como:
+
+$$
+\tag{1}
+t = \frac{\overline{X_1} - \overline{X_2}} { \sqrt{s_{\overline{X_1}}^2 - s_{\overline{X_2}}^2}}
+$$
+
+donde $\overline{X_i}$ y $s_{\overline{X_i}}$ representan la media y error estándar de la muestra $i$, respectivamente. El cuadro 2 presenta los resultados de esta prueba, los cuales confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 95%.
+
 ```{=tex}
 \begin{center}
 
@@ -160,16 +169,16 @@ kbl(table_two,
 
 \renewcommand{\arraystretch}{1}
 
-\newpage
-
 c)  Calcula el coeficiente de Gini de toda la muestra contenida en la base de datos y comenta cuál es tu apreciación del coeficiente de Gini encontrado (un párrafo como máximo).
 
+El coeficiente de Gini, una medida que demuestra el grado de desigualdad en una distribución de ingresos/riqueza, se define como:
+
 $$
-\tag{1}
+\tag{2}
 Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |,
 $$
 
-donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. El coeficiente se encuentra entre cero y uno y su interpretación es sencilla. Números mayores en el índice corresponden a un mayor nivel de desigualdad en la muestra. Un índice de Gini de cero significa perfecta igualdad de ingresos mientras que un coeficiente de uno representa exactamente lo contrario.
+donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. Dado a que valores elevados en el índice corresponden a un mayor nivel de desigualdad, es posible apreciar que la desigualdad en ingresos es considerablemente elevada en la muestra general. Sin embargo, es importante hacer notar que el cálculo de este coeficiente se ve afectado por el considerable número de observaciones con un nivel nulo de ingresos en la base de datos (`r round(data %>% filter(ingreso == 0) %>% count() / data %>% count() * 100, 2)`%).
 
 ```{r include = FALSE}
 gini <- Gini(data %>% pull(9))
@@ -180,7 +189,7 @@ gini <- Gini(data %>% pull(9))
 
 \small
 
-\textbf{Figura 2:} Curva de Lorentz en Guatemala
+\textbf{Figura 2:} Curva de Lorentz para la muestra general y distribución de ceros en la base de datos
 
 \normalsize
 
@@ -195,7 +204,7 @@ l <- lorentz[2]
 lor <- bind_cols(p, l)
 ```
 
-```{r echo = FALSE, fig.dim = c(10, 3)}
+```{r include = FALSE}
 p3 <- 
   lor %>% 
   ggplot(aes(p, L)) +
@@ -212,8 +221,51 @@ p3 <-
   annotate("rect", xmin = .02, xmax = .47, ymin = .78, ymax = .92, alpha = .3) +
   annotate("text", x = .25, y = .85, 
            label = paste("Índice de Gini = ", round(gini, 4)))
+```
 
-plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
+```{r include = FALSE}
+counting <- 
+  function(data, variable){
+  variable <- enquo(variable)
+  
+  result <- 
+    data %>% 
+    filter(ingreso == 0) %>% 
+    count(!!variable) %>% 
+    mutate(id = as_factor(rlang::as_name(variable))) %>% 
+    pivot_longer(-c(n, id)) %>% 
+    select(-3) %>% 
+    relocate(id, value, n)
+  
+  return(result)
+}
+
+plot <- 
+  counting(data, sexo) %>% 
+  bind_rows(counting(data, etnia),
+            counting(data, sector),
+            counting(data, area)) %>% 
+  mutate(id = case_when(
+    id == "sexo" ~ "Sexo", 
+    id == "etnia" ~ "Etnia",
+    id == "sector" ~ "Sector",
+    id == "area" ~ "Área",
+  ))
+
+p4 <- 
+  plot %>% 
+  mutate(` ` = id) %>% 
+  group_by(` `) %>% 
+  ggplot(aes(value, n, fill = ` `)) +
+  coord_flip() +
+  geom_col() +
+  theme_bw() + 
+  scale_fill_grey() +
+  labs(x = "", y = "")
+```
+
+```{r echo = FALSE, fig.dim = c(10, 3)}
+p3 + p4 + plot_layout(widths = c(2, 1))
 ```
 
 d)  Calcula el coeficiente de Gini únicamente para la población masculina y para la femenina, compara los valores absolutos y determina si estadísticamente son distintos (analiza este punto con dos párrafos explicativos máximo).
@@ -683,4 +735,4 @@ Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: S
 
 Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
 
-Palacios, D. A. G. (2021). *Diferencia salarial entre hombres y mujeres: Un estudio de Guatemala desde la perspectiva de las ocupaciones en el 2019*. *Revista Académica ECO*, (24), 21-37.
+Gamboa, D. (2021). *Diferencia salarial entre hombres y mujeres: Un estudio de Guatemala desde la perspectiva de las ocupaciones en el 2019*. *Revista Académica ECO*, (24), 21-37.
