@@ -27,12 +27,12 @@ data <-
   sujetos %>% 
   left_join(enei) %>% 
   select(hogar, id,
-         "sexo" = PPA02, #
+         "sexo" = PPA02, 
          "edad" = PPA03,
-         "etnia" = PPA06, #
-         "sector" = P04C25A, #
-         "área" = AREA, #
-         "educación" = P03A05B,
+         "etnia" = PPA06, 
+         "sector" = P04C25A, 
+         "area" = AREA, 
+         "educacion" = P03A05B,
          "salario" = P04C10,
          "horas_extra" = P04C11C,
          "comisiones" = P04C12B,
@@ -41,7 +41,7 @@ data <-
          "aguinaldo" = P04C15B,
          "bono_vacacional" = P04C16B,
          "quinceavo_sueldo" = P04C17B,
-         "alimentación" = P04C18B,
+         "alimentacion" = P04C18B,
          "vivienda" = P04C19B,
          "transporte" = P04C20B,
          "bono_productividad" = P04C21B
@@ -55,11 +55,11 @@ data <-
          sector = fct_collapse(as_factor(sector),
                            "Informal" = c("2", "3", "4"),
                            "Formal" = "1"),
-         área = fct_recode(as_factor(área),
+         area = fct_recode(as_factor(area),
                            "Rural" = "2",
                            "Urbana" = "1")) %>% 
   mutate(across(where(is.numeric), ~ replace_na(., 0)),
          ingreso = rowSums(across(salario:bono_productividad))) %>% 
-  select(hogar, id, sexo, edad, etnia, sector, área, educación, ingreso) %>% 
+  select(hogar, id, sexo, edad, etnia, sector, area, educacion, ingreso) %>% 
   write_csv(here("data.csv"))
 ```
