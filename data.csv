@@ -1,4 +1,4 @@
-hogar,id,sexo,edad,etnia,sector,área,educación,ingreso
+hogar,id,sexo,edad,etnia,sector,area,educacion,ingreso
 306,1,Masc,46,No indígena,Informal,Urbana,3,0
 307,1,Masc,56,No indígena,Formal,Urbana,6,12000
 307,2,Masc,36,No indígena,Informal,Urbana,6,0
