@@ -36,6 +36,9 @@ salarios <-
          "aguinaldo" = P04C15B,
          "bono_vacacional" = P04C16B,
          "quinceavo_sueldo" = P04C17B,
+         "alimentación" = P04C18B,
+         "vivienda" = P04C19B,
+         "transporte" = P04C20B,
          "bono_productividad" = P04C21B
          ) %>% 
   mutate(Sexo = fct_recode(as_factor(Sexo), 
@@ -58,6 +61,8 @@ ingresos <-
 ```
 
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
+
+En nuestro análisis, el ingreso de las personas está definido no únicamente como su salario sino como la combinación de este último y sus ingresos por horas laborales extras, comisiones, vacaciones, bono 14, aguinaldo, bono vacacional, quinceavo sueldo y bono de productividad. El cuadro 1 muestra las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Es importante tomar en consideración que existe un desequilibrio de clases dado a que la muestra presenta el doble de observaciones para el género masculino. Las estadísticas descriptivas demuestran que las funciones de densidad de probabilidad de cada sexo no se distribuyen normalmente, más bien, el estadístico de asimetría y curtosis indican que las mismas se encuentran sustancialmente sesgadas hacia la derecha y que ambas, en términos de exceso de curtosis, presentan un comportamiento platicúrtico. Es decir, los ingresos de la muestra se distribuyen tal y como se esperaría, por medio de una distribución de pareto.
 
 ```{=tex}
 \begin{center}
@@ -236,6 +241,10 @@ plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
 
 d)  Calcula el coeficiente de Gini únicamente para la población masculina y para la femenina, compara los valores absolutos y determina si estadísticamente son distintos (analiza este punto con dos párrafos explicativos máximo).
 
+Se realizó un proceso de bootstrapping, de remuestreo, para los índices de GINI para poder generar los estadísticos necesarios como el error estándar y así, poder realizar una prueba t. Analizando los resultados obtenidos en el cuadro 3 se puede observar desde el inicio una media del coeficiente de Gini superior para mujeres con 0.5478 que para hombres con 0.5357, al igual que en sus intervalos, donde las mujeres poseen un 0.5081 de mínimo mientras los hombres tienen 0.5044, y un máximo para mujeres de 0.5809 mientras para hombres es de 0.5721. Demostrando en términos absolutos una diferencia, aunque pequeña, existente en términos de desigualdad económica con respecto al sexo.
+
+Por otro lado, en términos estadísticos se determinó a través de una prueba t, que si existe una diferencia estadística entre el coeficiente de Gini para hombres y para mujeres. Lo cual quiere decir que estadísticamente no hay una distribución de las riquezas igualitaria en Guatemala con respecto al sexo.
+
 ```{r include = FALSE}
 bootstraps <- function(data) {
   vector <- data %>% pull(1)
@@ -318,6 +327,8 @@ kbl(table_three,
 
 e)  Calcula el anterior inciso d) pero ahora segmentando a los hombres indígenas de los no indígenas y a las mujeres indígenas de las no indígenas. Comenta las diferencias de las medias de ingreso y de los Gini de los cuatro grupos segmentados.
 
+De la misma manera se realizó el método de Bootstrap para el análisis a continuación. En primer lugar, en el cuadro 4 se presentan los datos para el coeficiente de Gini para hombres por autodenominación étnica donde se separa a la muestra entre indígena (lo cual incluye a aquellos que se autodenominan mayas, xincas, y garífunas) y no indígena. Lo que se observa es una clara desigualdad inferior al ser no indígena en el caso de los hombres con una media de Gini de 0.494 para no indígenas y un 0.5603 para indígenas, con una diferencia de 0.0663 lo cual puede llegar a ser hasta preocupante el ver una diferencia significativa tomando en cuenta las condiciones en las que se realiza la ENEI (no llega a las personas del interior o más aisladas, mayoritariamente indígenas). Es importante ver la diferencia entre los intervalos para los hombres indígenas y no indígenas donde se ve nuevamente una clara desigualdad inferior para los no indígenas. Asimismo, por una prueba de t estadística, se demuestra que estadísticamente son distintos los coeficientes de Gini para hombres indígenas y no indígenas.
+
 ```{r include = FALSE}
 ingresos_hombres <- 
   ingresos %>% 
@@ -392,6 +403,8 @@ kbl(table_four,
 
 \renewcommand{\arraystretch}{1}
 
+En segundo lugar, en el cuadro 5 se encuentra el coeficiente de Gini para mujeres con la misma clasificación por autodenominación étnica. En este caso se repite el patrón donde una mujer no indígena presenta un coeficiente de Gini inferior, donde la media de una mujer no indígena se encuentra en 0.5083 mientras que para una mujer indígena es de 0.6545, los intervalos igualmente demuestran esta desigualdad con respecto a la autodenominación étnica. Y de igual forma se comprueba estadísticamente a partir de una prueba t la diferencia estadísticamente significativa entre un coeficiente de Gini con respecto al otro, en este caso de mujeres indígenas y no indígenas. Una conclusión a la que se puede llegar estadísticamente por estos resultados es que es conveniente tanto el ser hombre como el ser no indígena para afrontar una desigualdad inferior, lo cual es realmente preocupante.
+
 ```{r include = FALSE}
 mujeres_maya <- ingresos_mujeres %>% filter(Etnia == "Indígena") %>% select(Ingreso)
 mujeres_no_maya <- ingresos_mujeres %>% filter(Etnia == "No indígena") %>% select(Ingreso)
@@ -459,6 +472,12 @@ f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becke
 
 donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis).
 
+La ecuación Minceriana surge a partir de la teoría del capital humano.La popularidad de esta metodología reside en la relación que existe entre los años de escolaridad con la tasa de retorno de la educación, es decir, el retorno de la inversión en educación para los individuos. Esta utiliza un método de de mínimos cuadrados ordinarios usando como variable dependiente el logaritmo de los ingresos y como variables independientes los años de educación, la experiencia laboral y el cuadrado de la misma.
+
+La ecuación toma en cuenta algunos supuestos, entre ellos; el retorno de la educación es independiente de los años de experiencia ya que no se toma en cuenta la capacitación y educación que las personas reciben al estar empleadas. Se espera una relación positiva entre años de educación y experiencia con los ingresos, sin embargo, al considerar la experiencia al cuadrado esta tendrá un coeficiente negativo. Esto se explica ya que cada año adicional de experiencia tiene un rendimiento marginal menor sobre los ingresos.
+
+Al plantear la ecuación Minceriana, según los resultados obtenidos los años de educación y experiencia tienen una relación positiva con el ingreso y son estadísticamente significativas. La tasa de rentabilidad de la educación es 13.3% , lo que indica que al aumentar los años de educación los ingresos de los individuos aumentan.
+
 ```{r include = FALSE}
 mincer_raw <- 
   data %>% 
@@ -475,6 +494,9 @@ mincer_raw <-
          "aguinaldo" = P04C15B,
          "bono_vacacional" = P04C16B,
          "quinceavo_sueldo" = P04C17B,
+         "alimentación" = P04C18B,
+         "vivienda" = P04C19B,
+         "transporte" = P04C20B,
          "bono_productividad" = P04C21B
          ) %>% 
   mutate(sexo = fct_recode(as_factor(sexo), 
@@ -488,7 +510,7 @@ mincer_raw <-
                             "Maya" = "5")) %>% 
   relocate(sexo, etnia) %>% 
   replace(is.na(.), 0) %>% 
-  mutate(total = rowSums(.[6:14])) %>% 
+  mutate(total = rowSums(.[6:17])) %>% 
   filter(salario != 0) %>% 
   select(sexo:salario)
 
@@ -552,6 +574,12 @@ kbl(table_six,
 
 g)  Procede a evaluar el inciso f) realizando una ecuación para hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
+Tomando en cuenta el planteamiento anterior, se realizó un modelo para contrastar los resultados entre hombres y mujeres. De la misma forma se incluyeron 3 variables dicotómicas, definidas como: Área Urbana (1), Sector Formal (1), No Indígena (1)
+
+En ambos modelos, todas las variables son estadísticamente significativas. Sin embargo, el modelo de mujeres presenta un R2 mayor. Se evidenció que la tasa de rentabilidad de la educación es mayor para las mujeres que para los hombres, 8% y 6% respectivamente. Esto se puede explicar ya que en Guatemala, las mujeres tienen un menor acceso a educación que los hombres. Caso contrario para la experiencia, esta variable tiene un mayor peso para el ingreso de los hombres que de las mujeres.
+
+Respecto al resto de variables estudiadas en el modelo, todas tienen una relación positiva con los ingresos. Sin embargo, el pertenecer al sector formal es la variable con mayor peso dentro del modelo. Al ser parte del sector formal los individuos tienen acceso a un salario mínimo, aunque en Guatemala este no es suficiente para cubrir todas las necesidades básicas, ofrecen estabilidad en los ingresos y algunas prestaciones adicionales.
+
 ```{r include = FALSE}
 mincer <- 
   data %>% 
@@ -570,6 +598,9 @@ mincer <-
          "aguinaldo" = P04C15B,
          "bono_vacacional" = P04C16B,
          "quinceavo_sueldo" = P04C17B,
+         "alimentación" = P04C18B,
+         "vivienda" = P04C19B,
+         "transporte" = P04C20B,
          "bono_productividad" = P04C21B
          ) %>% 
   mutate(sexo = fct_recode(as_factor(sexo), 
@@ -586,7 +617,7 @@ mincer <-
                            "Urbana" = "1")) %>% 
   relocate(sexo, etnia) %>% 
   mutate(across(where(is.numeric), ~ replace_na(.,0)),
-         total = rowSums(.[8:16])) %>% 
+         total = rowSums(.[8:19])) %>% 
   filter(salario != 0) %>% 
   select(sexo:salario)
 
@@ -751,3 +782,5 @@ Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: S
 *Hoover, G. & Yaya, M. (2010). Racial/Ethnic Differences in Income Inequality across US Regions.* Retrieved April 23, 2022, from [\<https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>](https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z){.uri}
 
 Mirzaei, S., Borzadaran, G. R. M., Amini, M., & Jabbari, H. (2017). A comparative study of the Gini coefficient estimators based on the regression approach. *Communications for Statistical Applications and Methods*, *24*(4), 339--351. <https://doi.org/10.5351/CSAM.2017.24.4.339>
+
+Palacios, D. A. G. (2021). *Diferencia salarial entre hombres y mujeres: Un estudio de Guatemala desde la perspectiva de las ocupaciones en el 2019*. *Revista Académica ECO*, (24), 21-37.
