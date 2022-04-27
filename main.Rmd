@@ -24,8 +24,18 @@ data <- read_csv(here("data.csv"), name_repair = "minimal")
 ```
 
 ```{r include = FALSE}
-salarios <- 
+sujetos <- 
   data %>% 
+  filter(PPA04C < 2004) %>% 
+  select(NUM_HOGAR, ID, P04C01) %>% 
+  drop_na() %>% 
+  select(-P04C01)
+```
+
+```{r include = FALSE}
+salarios <- 
+  sujetos %>% 
+  left_join(data) %>% 
   select("Sexo" = PPA02, 
          "Etnia" = PPA06,
          "Salario" = P04C10,
@@ -56,13 +66,15 @@ salarios <-
 
 ingresos <- 
   salarios %>% 
-  select(Sexo, Etnia, Ingreso) %>% 
-  filter(Ingreso != 0)
+  select(Sexo, Etnia, Ingreso) # %>% 
+  #filter(Ingreso != 0)
 ```
 
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
 
-En nuestro análisis, el ingreso de las personas está definido no únicamente como su salario sino como la combinación de este último y sus ingresos por horas laborales extras, comisiones, vacaciones, bono 14, aguinaldo, bono vacacional, quinceavo sueldo y bono de productividad. El cuadro 1 muestra las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Es importante tomar en consideración que existe un desequilibrio de clases dado a que la muestra presenta el doble de observaciones para el género masculino. Las estadísticas descriptivas demuestran que las funciones de densidad de probabilidad de cada sexo no se distribuyen normalmente, más bien, el estadístico de asimetría y curtosis indican que las mismas se encuentran sustancialmente sesgadas hacia la derecha y que ambas, en términos de exceso de curtosis, presentan un comportamiento platicúrtico. Es decir, los ingresos de la muestra se distribuyen tal y como se esperaría, por medio de una distribución de pareto.
+En nuestro análisis, los sujetos se definen como todos los individuos que cuentan con la edad mínima para trabajar (15 años) o más y que permanecen ocupados en uno o más trabajos. Además, el ingreso de las personas está definido como la sumatoria de su salario base más sus ingresos por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como subsidios por alimentación, vivienda y transporte.
+
+El cuadro 1 muestra las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Es importante tomar en consideración que existe un desequilibrio de clases dado a que la muestra presenta el doble de observaciones para el género masculino. Las estadísticas descriptivas demuestran que las funciones de densidad de probabilidad de cada sexo no se distribuyen normalmente, más bien, el estadístico de asimetría y curtosis indican que las mismas se encuentran sustancialmente sesgadas hacia la derecha y que ambas, en términos de exceso de curtosis, presentan un comportamiento platicúrtico. Es decir, los ingresos de la muestra se distribuyen tal y como se esperaría, por medio de una distribución de pareto.
 
 ```{=tex}
 \begin{center}
@@ -480,7 +492,8 @@ Al plantear la ecuación Minceriana, según los resultados obtenidos los años d
 
 ```{r include = FALSE}
 mincer_raw <- 
-  data %>% 
+  sujetos %>% 
+  left_join(data) %>% 
   select("sexo" = PPA02, 
          "edad" = PPA03,
          "educación" = P03A05B,
@@ -582,7 +595,8 @@ Respecto al resto de variables estudiadas en el modelo, todas tienen una relaci�
 
 ```{r include = FALSE}
 mincer <- 
-  data %>% 
+  sujetos %>% 
+  left_join(data) %>% 
   select("sexo" = PPA02, 
          "edad" = PPA03,
          "educación" = P03A05B,
