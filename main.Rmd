@@ -38,7 +38,7 @@ a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las 
 
 En nuestro análisis, los sujetos se definen como todos los individuos que cuentan con la edad mínima para trabajar (15 años) o más y que permanecen ocupados en uno o más trabajos. Además, el ingreso de las personas está definido como la sumatoria de su salario base más sus ingresos por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como cobertura de viáticos por motivo de alimentación, vivienda y transporte.
 
-El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. De tal forma, es posible apreciar que el ingreso medio es más elevado para el sexo masculino por aproximadamente 300 quetzales. Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que la marcada brecha salarial por género en el país se explica debido a que la participación de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
+El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. De tal forma, es posible apreciar que el ingreso medio es más elevado para el género masculino por aproximadamente 300 quetzales. Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que la marcada brecha salarial por género en el país se explica debido a que la participación de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
 
 ```{=tex}
 \begin{center}
@@ -178,11 +178,11 @@ $$
 Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |,
 $$
 
-donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. Dado a que valores elevados en el índice corresponden a un mayor nivel de desigualdad, es posible apreciar que la desigualdad en ingresos es considerablemente elevada en la muestra general. Sin embargo, es importante hacer notar que el cálculo de este coeficiente se ve afectado por el considerable número de observaciones con un nivel nulo de ingresos en la base de datos (`r round(data %>% filter(ingreso == 0) %>% count() / data %>% count() * 100, 2)`%).
-
 ```{r include = FALSE}
 gini <- Gini(data %>% pull(9))
 ```
+
+donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. Dado a que valores elevados en el índice corresponden a un mayor nivel de desigualdad, es posible apreciar que la desigualdad en ingresos es sustancialmente alta en la muestra general (`r round(gini, 2)`). Sin embargo, es importante notar que el cálculo de este coeficiente se ve afectado por el considerable número de observaciones con un nivel nulo de ingresos en la base de datos (`r round(data %>% filter(ingreso == 0) %>% count() / data %>% count() * 100, 2)`%).
 
 ```{=tex}
 \begin{center}
@@ -321,9 +321,9 @@ table_three <-
   bind_cols(t_test2)
 ```
 
-Con el objeto de comparar el valor de los índices de Gini que existen entre mujeres y hombres---y, particularmente, determinar si la diferencia entre estos coeficientes es estadísticamente significativa---se realiza un procedimiento de remuestreo aleatorio con remplazo (*bootstrapping*) en el que 1000 muestras conformadas por 1000 observaciones son extraídas de ambos grupos con el propósito de obtener el error estándar muestral de cada Gini. Dado a que tanto el tamaño como la varianza de las observaciones son iguales, una prueba $t$ simple es utilizada para comprobar la significancia estadística de la diferencia entre grupos.
+Con el objeto de comparar el valor de los índices de Gini que existen entre mujeres y hombres---y, particularmente, determinar si la diferencia entre estos coeficientes es estadísticamente significativa---se realiza un procedimiento de remuestreo aleatorio con remplazo (*bootstrapping*) en el que 1000 muestras conformadas por 1000 observaciones son extraídas de ambos grupos con el propósito de obtener el error estándar muestral de cada Gini. Dado a que tanto el tamaño como la varianza de las observaciones son iguales, una prueba $t$ de Student es utilizada para comprobar la significancia estadística de la diferencia entre grupos.
 
-El cuadro 3 muestra los resultados de este procedimiento. Como es posible apreciar, el coeficiente de Gini es superior para mujeres (`r round(table_three %>% slice(2) %>% pull(2), 2)`) que para hombres (`r round(table_three %>% slice(1) %>% pull(2), 2)`), demostrando en términos absolutos una diferencia considerable en términos de desigualdad económica con respecto al sexo. Además, los resultados de la prueba $t$ confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 95%.
+El cuadro 3 muestra los resultados de este procedimiento. Como es posible apreciar, el coeficiente de Gini es superior para mujeres (`r round(table_three %>% slice(2) %>% pull(2), 2)`) que para hombres (`r round(table_three %>% slice(1) %>% pull(2), 2)`), demostrando una diferencia considerable en términos de desigualdad de ingresos con respecto al sexo que favorece al género masculino. Además, los resultados de la prueba $t$ confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 99%.
 
 ```{=tex}
 \begin{center}
@@ -392,7 +392,7 @@ table_four <-
   bind_cols(t_test3)
 ```
 
-De la misma manera que en el apartado anterior, se realiza un procedimiento de *bootstrapping* para obtener los errores estándar de los grupos del análisis con el propósito de determinar si las diferencias entre el índice de Gini de hombres y mujeres segmentados por autodenominación étnica son estadísticamente significativas. El grupo "indígena" incluye a todas las personas que se autodenominan como mayas, xincas y garifunas, mientras que la categoría "no indígena" recoge a los individuos que se autodenominan como ladinos y extranjeros. Los resultados de este ejercicio se presentan en los cuadros 4 y 5.
+De la misma forma que en el apartado anterior, se realiza un procedimiento de *bootstrapping* con el propósito de comprobar si las diferencias entre los coeficientes de Gini de hombres y mujeres segmentados por autodenominación étnica son estadísticamente significativas. El grupo "indígena" incluye a todas las personas que se autodenominan como mayas, xincas y garifunas, mientras que la categoría "no indígena" recoge a los individuos que se autodenominan como ladinos y extranjeros. Los resultados de este ejercicio se presentan en los cuadros 4 y 5.
 
 El cuadro 4, donde el grupo de hombres de divide en las categorías "indígena" y "no indígena", demuestra que existe una distribución de ingresos menos equitativa dentro del grupo de personas que se autodenominan mayas, xincas o garífunas (`r round(table_four %>% slice(1) %>% pull(2), 2)`) que en la categoría "no indígena" (`r round(table_four %>% slice(2) %>% pull(2), 2)`). Además, es importante observar que el rango del índice de Gini para los hombres indígenas comienza en un mínimo mayor que el de los hombre no indígenas y también finaliza en un máximo más alto. Una prueba $t$ de Student demuestra que, en efecto, ambos coeficientes pueden considerarse como estadísticamente diferentes.
 
@@ -452,7 +452,7 @@ table_five <-
   bind_cols(t_test4)
 ```
 
-Mientras tanto, el cuadro 5 presenta los coeficientes de Gini para mujeres con la misma clasificación por autodenominación étnica. Los resultados de este ejercicio son muy similares a los del párrafo anterior: Las personas que pertenecen al grupo de mujeres no indígenas cuentan con una distribución de ingresos relativamente más equitativa que aquellas a las que pertenecen al grupo de mujeres indígenas. Sin embargo, de la misma manera que en el inciso (d), los valores absolutos de ambos grupos son considerablemente mayores a los de los mismos grupos del género masculino. La diferencia entre ambos coeficientes también es estadísticamente significativa a un elevado nivel de confianza.
+Mientras tanto, el cuadro 5 presenta los coeficientes de Gini para mujeres con la misma clasificación por autodenominación étnica. Los resultados de este ejercicio son muy similares a los del párrafo anterior: Las personas que pertenecen al grupo de mujeres no indígenas cuentan con una distribución de ingresos relativamente más equitativa que aquellas quienes pertenecen al grupo de mujeres indígenas. Sin embargo, de la misma manera que en el inciso (d), los valores absolutos de ambos grupos son considerablemente mayores a los de los mismos grupos del género masculino. La diferencia entre ambos coeficientes también es estadísticamente significativa a un elevado nivel de confianza.
 
 ```{=tex}
 \begin{center}
@@ -486,18 +486,14 @@ kbl(table_five,
 
 f)  Con base a la Teoría del Capital Humano (puedes revisar el estudio de Becker disponible en el portal y la presentación), arma una ecuación minceriana para evaluar los efectos de cada variable del Capital Humano en la muestra total.
 
-    $$
-    \tag{2}
-    ln \ w_i = f(s_i,x_i) = w_0 + \rho s_i + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i,
-    $$
+La ecuación minceriana relaciona al logaritmo de los ingresos de un individuo con sus años de escolaridad y sus años de experiencia laboral, de tal modo que:
 
-donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis).
+$$
+\tag{3}
+ln \ w_i = f(s_i,x_i) = w_0 + \rho s_i + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i,
+$$
 
-La ecuación Minceriana surge a partir de la teoría del capital humano.La popularidad de esta metodología reside en la relación que existe entre los años de escolaridad con la tasa de retorno de la educación, es decir, el retorno de la inversión en educación para los individuos. Esta utiliza un método de de mínimos cuadrados ordinarios usando como variable dependiente el logaritmo de los ingresos y como variables independientes los años de educación, la experiencia laboral y el cuadrado de la misma.
-
-La ecuación toma en cuenta algunos supuestos, entre ellos; el retorno de la educación es independiente de los años de experiencia ya que no se toma en cuenta la capacitación y educación que las personas reciben al estar empleadas. Se espera una relación positiva entre años de educación y experiencia con los ingresos, sin embargo, al considerar la experiencia al cuadrado esta tendrá un coeficiente negativo. Esto se explica ya que cada año adicional de experiencia tiene un rendimiento marginal menor sobre los ingresos.
-
-Al plantear la ecuación Minceriana, según los resultados obtenidos los años de educación y experiencia tienen una relación positiva con el ingreso y son estadísticamente significativas. La tasa de rentabilidad de la educación es 13.3% , lo que indica que al aumentar los años de educación los ingresos de los individuos aumentan.
+donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis). Una de las razones primordiales que explica la popularidad de esta metodología reside en que el parámetro $\rho$ recoge la relación que existe entre los años de escolaridad y los ingresos de un individuo, por lo que este coeficiente es normalmente interpretado como la tasa de retorno de la educación---un concepto central de la teoría del capital humano que, tal y como Heckman et al. (2006) observan, fue introducido por primera vez por Becker (1964).
 
 ```{r include = FALSE}
 mincer <- 
@@ -560,6 +556,12 @@ kbl(table_six,
 \mbox{}\hfill $R^2$ ajustado: `r summary_one$adj.r.squared` \| Estadístico $F$: `r summary_one$fstatistic[1]` (\< 2.2e-16)
 
 \normalsize
+
+\vspace{3mm}
+
+La especificación de la ecuación minceriana asume que la tasa de retorno de la educación es la misma para todos los niveles de escolaridad e independiente de los años de experiencia (ya que no se toma en cuenta la capacitación y educación que las personas reciben al estar empleadas). Mientras tanto, se espera una relación positiva entre la variable dependiente y los años de educación y años experiencia laboral. Además, se espera una relación inversa entre el logaritmo de los ingresos y la experiencia elevada al cuadrado, debido a que cada año adicional de experiencia tiene un rendimiento marginal menor sobre los ingresos.
+
+Una estimación de la ecuación minceriana por medio de mínimos cuadrados ordinarios en la muestra completa (cuadro 6) devela que los años de educación y experiencia tienen una relación positiva con el logaritmo del ingreso mensual de los individuos y que ambos coeficientes son estadísticamente significativos. La tasa de rentabilidad de la educación es del `r round(lm_one %>% tidy() %>% slice(2) %>% pull(2), 4) * 100`%, lo que indica que al aumentar los años de educación, los ingresos de los individuos aumentan. Sin embargo, esta especificación únicamente explica el `r round(summary_one$adj.r.squared, 2) * 100`% de la variación del logaritmo de los ingresos percibidos.
 
 g)  Procede a evaluar el inciso f) realizando una ecuación para hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
@@ -728,6 +730,8 @@ h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos 
 Björklund, A., & Kjellström, C. (2002). Estimating the return to investments in education: How useful is the standard Mincer equation? *Economics of Education Review*, *21*(3), 195--210. [https://doi.org/10.1016/S0272-7757(01)00003-6](https://doi.org/10.1016/S0272-7757(01)00003-6)
 
 Giles, D. E. A. (2004). Calculating a Standard Error for the Gini Coefficient: Some Further Results\*. *Oxford Bulletin of Economics and Statistics*, *66*(3), 425--433. <https://doi.org/10.1111/j.1468-0084.2004.00086.x>
+
+Heckman, J. J., Lochner, L. J., & Todd, P. E. (2008). Earnings functions and rates of return. *Journal of human capital*, *2*(1), 1-31.
 
 *Hoover, G. & Yaya, M. (2010). Racial/Ethnic Differences in Income Inequality across US Regions.* Retrieved April 23, 2022, from [\<https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z>](https://journals.sagepub.com/doi/abs/10.1007/s12114-010-9057-z){.uri}
 
