@@ -9,9 +9,7 @@ enei <-
          id = as_factor(ID),
          edad = PPA03,
          trabajos = as_factor(P04C01))
-```
 
-```{r}
 sujetos <- 
   enei %>% 
   # Mayores de 15 años
@@ -61,5 +59,6 @@ data <-
   mutate(across(where(is.numeric), ~ replace_na(., 0)),
          ingreso = rowSums(across(salario:bono_productividad))) %>% 
   select(hogar, id, sexo, edad, etnia, sector, area, educacion, ingreso) %>% 
+  filter(ingreso > 0) %>% 
   write_csv(here("data.csv"))
 ```
