@@ -34,11 +34,11 @@ data %<>%
   )
 ```
 
+\vspace{-2mm}
+
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
 
-En nuestro análisis, los sujetos se definen como todos los individuos que cuentan con la edad mínima para trabajar (15 años) o más y que permanecen ocupados en uno o más trabajos. Además, el ingreso de las personas está definido como la sumatoria de su salario base más sus ingresos por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como cobertura de viáticos por motivo de alimentación, vivienda y transporte.
-
-El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. De tal forma, es posible apreciar que el ingreso medio es más elevado para el género masculino por aproximadamente 300 quetzales. Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que la marcada brecha salarial por género en el país se explica debido a que la participación de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
+El presente trabajo define a sus sujetos de investigación como todos aquellos individuos que cuentan con, por lo menos, la edad legal mínima para trabajar, que permanecen ocupados en uno o más puestos de trabajo y que percibieron un salario durante el periodo previo a la realización de la encuesta. Además, el ingreso de las personas se define como la sumatoria de su sueldo base más los ingresos generados por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como cobertura de viáticos por motivo de alimentación, vivienda y transporte.
 
 ```{=tex}
 \begin{center}
@@ -50,13 +50,12 @@ El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la m
 \normalsize
 
 \end{center}
-
-\renewcommand{\arraystretch}{1.3}
 ```
 ```{r include = FALSE}
 table_one <- 
   data %>% 
-  group_by(sexo) %>% 
+  rename("Sexo" = sexo) %>% 
+  group_by(Sexo) %>% 
   summarise(Media = round(mean(ingreso), 2),
             Mediana = round(median(ingreso), 2),
             `Desv. Est.` = round(sd(ingreso), 2),
@@ -64,11 +63,11 @@ table_one <-
             Máximo = round(max(ingreso), 2),
             Asimetría = round(skewness(ingreso), 2),
             Curtosis = round(kurtosis(ingreso), 2),
-            `Obs.` = length(sexo)
+            `Obs.` = length(Sexo)
   )
 ```
 
-\renewcommand{\arraystretch}{1}
+\renewcommand{\arraystretch}{1.3}
 
 ```{r echo = FALSE}
 kbl(table_one, 
@@ -81,6 +80,8 @@ kbl(table_one,
   column_spec(9, width = "1cm")
 ```
 
+\renewcommand{\arraystretch}{1}
+
 ```{=tex}
 \begin{center}
 
@@ -91,8 +92,10 @@ kbl(table_one,
 \normalsize
 
 \end{center}
+
+\vspace{-2mm}
 ```
-```{r echo = FALSE, fig.dim = c(10, 3)}
+```{r echo = FALSE, fig.dim = c(10, 2.9)}
 p1 <- 
   data %>% 
   rename("Sexo" = sexo, "Ingreso" = ingreso) %>% 
@@ -112,16 +115,22 @@ p2 <-
 (p2 + p1) + plot_layout(widths = c(1, 2))
 ```
 
+El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Como es posible apreciar, el ingreso medio es más elevado para el género femenino que para el masculino por aproximadamente 700 quetzales. Sin embargo, la desviación estándar de esta medida también es más alta para el género femenino, sugiriendo que el mismo se distribuye con una mayor dispersión entre mujeres. Además es importante considerar que existen el doble de observaciones para los hombres que para la población femenina, por lo que este desbalance de clases podría estar sesgando a las estadísticas descriptivas.
+
+De hecho, Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que en realidad existe una marcada brecha salarial por género en el país que se explica debido a que la participación de la mayor parte de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
+
 b)  Compara ahora las medias y determina si estadísticamente son distintas (el hecho de que los valores absolutos sean distintos no necesariamente significa que estadísticamente lo sean). Presenta tu cálculo y la evidencia para afirmar tu respuesta.
 
 Una prueba $t$ de Welch es utilizada en este caso debido a su mayor robustez durante situaciones donde tanto los tamaños como las varianzas de ambas muestras difieren entre sí. El estadístico $t$ de las medias muestrales se computa como:
+
+\vspace{-3mm}
 
 $$
 \tag{1}
 t = \frac{\overline{X_1} - \overline{X_2}} { \sqrt{s_{\overline{X_1}}^2 - s_{\overline{X_2}}^2}}
 $$
 
-donde $\overline{X_i}$ y $s_{\overline{X_i}}$ representan la media y error estándar de la muestra $i$, respectivamente. El cuadro 2 presenta los resultados de esta prueba, los cuales confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 95%.
+donde $\overline{X_i}$ y $s_{\overline{X_i}}$ representan la media y error estándar de la muestra $i$, respectivamente. El cuadro 2 presenta los resultados de esta prueba, los cuales confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 99%.
 
 ```{=tex}
 \begin{center}
@@ -173,6 +182,8 @@ c)  Calcula el coeficiente de Gini de toda la muestra contenida en la base de da
 
 El coeficiente de Gini, una medida que demuestra el grado de desigualdad en una distribución de ingresos/riqueza, se define como:
 
+\vspace{-3mm}
+
 $$
 \tag{2}
 Gini = \frac{1}{2n^2\mu} \sum_{i = 1}^n \sum_{j = 1}^n | y_i - y_j |,
@@ -182,14 +193,14 @@ $$
 gini <- Gini(data %>% pull(9))
 ```
 
-donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. Dado a que valores elevados en el índice corresponden a un mayor nivel de desigualdad, es posible apreciar que la desigualdad en ingresos es sustancialmente alta en la muestra general (`r round(gini, 2)`). Sin embargo, es importante notar que el cálculo de este coeficiente se ve afectado por el considerable número de observaciones con un nivel nulo de ingresos en la base de datos (`r round(data %>% filter(ingreso == 0) %>% count() / data %>% count() * 100, 2)`%).
+donde $\mu$ es el ingreso medio, $n$ el número de individuos en la muestra, mientras que $y_i$ y $y_j$ representan el ingreso del individuo $i$ y $j$, respectivamente. Debido a que valores elevados en el índice corresponden a un mayor nivel de desigualdad, es posible apreciar que la desigualdad en ingresos es considerablemente alta en la muestra general (`r round(gini, 2) * 100`%).
 
 ```{=tex}
 \begin{center}
 
 \small
 
-\textbf{Figura 2:} Curva de Lorentz para la muestra general y distribución de ceros en la base de datos
+\textbf{Figura 2:} Curva de Lorentz para la muestra general
 
 \normalsize
 
@@ -223,49 +234,8 @@ p3 <-
            label = paste("Índice de Gini = ", round(gini, 4)))
 ```
 
-```{r include = FALSE}
-counting <- 
-  function(data, variable){
-  variable <- enquo(variable)
-  
-  result <- 
-    data %>% 
-    filter(ingreso == 0) %>% 
-    count(!!variable) %>% 
-    mutate(id = as_factor(rlang::as_name(variable))) %>% 
-    pivot_longer(-c(n, id)) %>% 
-    select(-3) %>% 
-    relocate(id, value, n)
-  
-  return(result)
-}
-
-plot <- 
-  counting(data, sexo) %>% 
-  bind_rows(counting(data, etnia),
-            counting(data, sector),
-            counting(data, area)) %>% 
-  mutate(id = case_when(
-    id == "sexo" ~ "Sexo", 
-    id == "etnia" ~ "Etnia",
-    id == "sector" ~ "Sector",
-    id == "area" ~ "Área",
-  ))
-
-p4 <- 
-  plot %>% 
-  mutate(` ` = id) %>% 
-  group_by(` `) %>% 
-  ggplot(aes(value, n, fill = ` `)) +
-  coord_flip() +
-  geom_col() +
-  theme_bw() + 
-  scale_fill_grey() +
-  labs(x = "", y = "")
-```
-
 ```{r echo = FALSE, fig.dim = c(10, 3)}
-p3 + p4 + plot_layout(widths = c(2, 1))
+plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
 ```
 
 d)  Calcula el coeficiente de Gini únicamente para la población masculina y para la femenina, compara los valores absolutos y determina si estadísticamente son distintos (analiza este punto con dos párrafos explicativos máximo).
@@ -321,9 +291,7 @@ table_three <-
   bind_cols(t_test2)
 ```
 
-Con el objeto de comparar el valor de los índices de Gini que existen entre mujeres y hombres---y, particularmente, determinar si la diferencia entre estos coeficientes es estadísticamente significativa---se realiza un procedimiento de remuestreo aleatorio con remplazo (*bootstrapping*) en el que 1000 muestras conformadas por 1000 observaciones son extraídas de ambos grupos con el propósito de obtener el error estándar muestral de cada Gini. Dado a que tanto el tamaño como la varianza de las observaciones son iguales, una prueba $t$ de Student es utilizada para comprobar la significancia estadística de la diferencia entre grupos.
-
-El cuadro 3 muestra los resultados de este procedimiento. Como es posible apreciar, el coeficiente de Gini es superior para mujeres (`r round(table_three %>% slice(2) %>% pull(2), 2)`) que para hombres (`r round(table_three %>% slice(1) %>% pull(2), 2)`), demostrando una diferencia considerable en términos de desigualdad de ingresos con respecto al sexo que favorece al género masculino. Además, los resultados de la prueba $t$ confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 99%.
+Con el objeto de comparar el valor de los índices de Gini que existen al segregar a la base de datos entre mujeres y hombres y, particularmente, determinar si la diferencia entre estos coeficientes es estadísticamente significativa, se realiza un procedimiento de remuestreo aleatorio con remplazo (*bootstrapping*) en el que 1000 muestras conformadas por 1000 observaciones son extraídas de ambos grupos con el propósito de obtener el error estándar de cada Gini. Dado a que tanto el tamaño como la varianza de las muestras son iguales, una prueba $t$ de Student es utilizada para comprobar la significancia estadística de la diferencia entre ambos coeficientes.
 
 ```{=tex}
 \begin{center}
@@ -351,6 +319,8 @@ kbl(table_three,
   column_spec(7, width = "0.5cm") %>% 
   column_spec(8, width = "2cm")
 ```
+
+El cuadro 3 muestra los resultados de este procedimiento. Como es posible apreciar, el coeficiente de Gini es superior para mujeres (`r round(table_three %>% slice(2) %>% pull(2), 2)`) que para hombres (`r round(table_three %>% slice(1) %>% pull(2), 2)`), demostrando una ligera diferencia en términos de desigualdad de ingresos con respecto al sexo que favorece al género masculino. Además, los resultados de la prueba $t$ confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 99%.
 
 \renewcommand{\arraystretch}{1}
 
@@ -394,7 +364,7 @@ table_four <-
 
 De la misma forma que en el apartado anterior, se realiza un procedimiento de *bootstrapping* con el propósito de comprobar si las diferencias entre los coeficientes de Gini de hombres y mujeres segmentados por autodenominación étnica son estadísticamente significativas. El grupo "indígena" incluye a todas las personas que se autodenominan como mayas, xincas y garifunas, mientras que la categoría "no indígena" recoge a los individuos que se autodenominan como ladinos y extranjeros. Los resultados de este ejercicio se presentan en los cuadros 4 y 5.
 
-El cuadro 4, donde el grupo de hombres de divide en las categorías "indígena" y "no indígena", demuestra que existe una distribución de ingresos menos equitativa dentro del grupo de personas que se autodenominan mayas, xincas o garífunas (`r round(table_four %>% slice(1) %>% pull(2), 2)`) que en la categoría "no indígena" (`r round(table_four %>% slice(2) %>% pull(2), 2)`). Además, es importante observar que el rango del índice de Gini para los hombres indígenas comienza en un mínimo mayor que el de los hombre no indígenas y también finaliza en un máximo más alto. Una prueba $t$ de Student demuestra que, en efecto, ambos coeficientes pueden considerarse como estadísticamente diferentes.
+El cuadro 4 demuestra que existe una distribución de ingresos menos equitativa dentro del grupo de personas que se autodenominan mayas, xincas o garífunas (`r round(table_four %>% slice(1) %>% pull(2), 2)`) que en la categoría "no indígena" (`r round(table_four %>% slice(2) %>% pull(2), 2)`). Además, es importante observar que el rango del índice de Gini para los hombres indígenas comienza en un mínimo mayor que el de los hombre no indígenas y también finaliza en un máximo más alto. Una prueba $t$ de Student demuestra que, en efecto, ambos coeficientes pueden considerarse como estadísticamente distintos.
 
 ```{=tex}
 \begin{center}
@@ -495,6 +465,8 @@ $$
 
 donde $w$ representa el ingreso mensual de la persona $i$, $s_i$ sus años de educación y $x_i$ sus años de experiencia laboral potencial (edad menos años de educación menos seis). Una de las razones primordiales que explica la popularidad de esta metodología reside en que el parámetro $\rho$ recoge la relación que existe entre los años de escolaridad y los ingresos de un individuo, por lo que este coeficiente es normalmente interpretado como la tasa de retorno de la educación---un concepto central de la teoría del capital humano que, tal y como Heckman et al. (2006) observan, fue introducido por primera vez por Becker (1964).
 
+La especificación de la ecuación minceriana asume que la tasa de retorno de la educación es la misma para todos los niveles de escolaridad e independiente de los años de experiencia (ya que no se toma en cuenta la capacitación y educación que las personas reciben al estar empleadas). Mientras tanto, se espera una relación positiva entre la variable dependiente y las dos primeras variables: los años de educación y los años experiencia laboral. Por último, se espera una relación inversa entre el logaritmo de los ingresos y la experiencia elevada al cuadrado, debido a que cada año adicional de experiencia tiene un rendimiento marginal menor sobre los ingresos.
+
 ```{r include = FALSE}
 mincer <- 
   data %>% 
@@ -559,9 +531,7 @@ kbl(table_six,
 
 \vspace{3mm}
 
-La especificación de la ecuación minceriana asume que la tasa de retorno de la educación es la misma para todos los niveles de escolaridad e independiente de los años de experiencia (ya que no se toma en cuenta la capacitación y educación que las personas reciben al estar empleadas). Mientras tanto, se espera una relación positiva entre la variable dependiente y los años de educación y años experiencia laboral. Además, se espera una relación inversa entre el logaritmo de los ingresos y la experiencia elevada al cuadrado, debido a que cada año adicional de experiencia tiene un rendimiento marginal menor sobre los ingresos.
-
-Una estimación de la ecuación minceriana por medio de mínimos cuadrados ordinarios en la muestra completa (cuadro 6) devela que los años de educación y experiencia tienen una relación positiva con el logaritmo del ingreso mensual de los individuos y que ambos coeficientes son estadísticamente significativos. La tasa de rentabilidad de la educación es del `r round(lm_one %>% tidy() %>% slice(2) %>% pull(2), 4) * 100`%, lo que indica que al aumentar los años de educación, los ingresos de los individuos aumentan. Sin embargo, esta especificación únicamente explica el `r round(summary_one$adj.r.squared, 2) * 100`% de la variación del logaritmo de los ingresos percibidos.
+Una estimación de la ecuación minceriana por medio de mínimos cuadrados ordinarios en la muestra completa (cuadro 6) devela que los años de educación y experiencia tienen una relación positiva con el logaritmo del ingreso mensual de los individuos y que ambos coeficientes son estadísticamente significativos. La tasa de rentabilidad de la educación es del `r round(lm_one %>% tidy() %>% slice(2) %>% pull(2), 4) * 100`%, lo que indica que el incremento de un año de educación aumenta en dicha cuantía al logaritmo de los ingresos mensuales de los individuos. Sin embargo, esta especificación únicamente explica el `r round(summary_one$adj.r.squared, 2) * 100`% de la variación del logaritmo de los ingresos percibidos.
 
 g)  Procede a evaluar el inciso f) realizando una ecuación para hombres y otra para mujeres, asegurándote de incluir en tu modelo variables extra (además de las variables propias del Capital Humano) que permitan evaluar el efecto de pertenecer al sector formal o informal; de estar en el área urbana o rural; y de ser indígena o no indígena (presenta tus cuadros de salida para ambas regresiones y analiza estadísticamente los resultados que obtuviste).
 
@@ -599,6 +569,8 @@ table_seven <-
          "Error estándar" = std.error, "Estadístico t" = statistic,
          "Valor p" = p.value)
 ```
+
+Los cuadros 7 y 8 presentan los resultados de regresiones mincerianas en las que la muestra general es segregada por sexo. Esta vez, tres variables dicotómicas son tomadas en consideración: una para diferenciar si el individuo reside en el área urbana o rural, otra para distinguir si este participa dentro del sector formal o informal y la última para considerar su autodenominación étnica, clasificada entre "indígena" y "no indígena", como en apartados anteriores. En ambos modelos, todas las variables son estadísticamente significativas, tanto individualmente como en conjunto. Además, ambas regresiones cuentan con magnitudes similares en el coeficiente de determinación, sugiriendo que esta especificación explica en aproximadamente un `r round(summary_two$adj.r.squared, 2)* 100`% la variación en el logaritmo de los ingresos.
 
 ```{=tex}
 \begin{center}
@@ -667,11 +639,9 @@ table_eight <-
          "Valor p" = p.value)
 ```
 
-Los cuadros 7 y 8 presentan los resultados de regresiones mincerianas en las que la muestra general es segregada por sexo. Esta vez, tres variables dicotómicas son tomadas en consideración: una para diferenciar si el individuo reside en el área urbana o rural, otra para distinguir si este participa dentro del sector formal o informal y la última para considerar la autodenominación étnica de los individuos, clasificada entre "indígena" y "no indígena", como en apartados anteriores. En ambos modelos, todas las variables son estadísticamente significativas, tanto individualmente como en conjunto. Además, ambas regresiones cuentan con magnitudes similares en el coeficiente de determinación, sugiriendo que esta especificación explica en aproximadamente un `r round(summary_two$adj.r.squared, 2)* 100`% la variación en el logaritmo de los ingresos.
-
 Los resultados evidencian que la tasa de retorno de la educación es mayor para las mujeres que para los hombres, `r round(lm_three %>% tidy() %>% slice(2) %>% pull(2), 3) * 100`% y `r round(lm_two %>% tidy() %>% slice(2) %>% pull(2), 3) * 100`%, respectivamente. Esta diferencia entre las tasas de retorno puede deberse a que, en Guatemala, las mujeres tienen un menor acceso a educación que los hombres, por lo que un mayor nivel educativo para ellas representa actualmente una alta probabilidad de generar flujos de ingresos más elevados. Por otra parte, el coeficiente que mide la relación entre la experiencia laboral y el logaritmo de los ingresos tiene un peso ligeramente mayor en el grupo de hombres (`r round(lm_two %>% tidy() %>% slice(3) %>% pull(2), 3) * 100`%) que en el de mujeres (`r round(lm_three %>% tidy() %>% slice(3) %>% pull(2), 3) * 100`%).
 
-En lo que respecta al resto de variables consideradas dentro del modelo, todas tienen una relación positiva con los ingresos. Sin embargo, la variable dicotómica que divide a las muestras entre participantes del sector formal y aquellos individuos que trabajan en el sector informal presenta el coeficiente con mayor peso en las regresiones, principalmente en la regresión que considera a la población femenina que participa dentro de la fuerza laboral. Por lo tanto, es posible observar que aquellos individuos que residen en áreas rurales, participan en el sector informal y se autodenominan como maya, xinca o garífuna perciben, en promedio, salarios más bajos.
+En lo que respecta a las variables dicotómicas consideradas dentro del modelo, todas mantienen una relación positiva con los ingresos. Sin embargo, la variable dicotómica que divide a las muestras entre participantes del sector formal y aquellos individuos que trabajan en el sector informal presenta el coeficiente con mayor peso en las regresiones, principalmente en la regresión que considera a la población femenina que participa dentro de la fuerza laboral. Por lo tanto, es posible observar que aquellos individuos que residen en áreas rurales, participan en el sector informal y se autodenominan como maya, xinca o garífuna perciben, en promedio, salarios más bajos.
 
 ```{=tex}
 \begin{center}
