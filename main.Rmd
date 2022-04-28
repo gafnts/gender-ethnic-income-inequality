@@ -34,11 +34,13 @@ data %<>%
   )
 ```
 
-\vspace{-2mm}
+\vspace{-5mm}
 
 a)  Compara la media de ingreso entre hombres y mujeres y comenta acerca de las diferencias que encontraste (presenta los valores y agrega como máximo dos párrafos explicativos del por qué consideras que existe la diferencia, utiliza soporte académico).
 
 El presente trabajo define a sus sujetos de investigación como todos aquellos individuos que cuentan con, por lo menos, la edad legal mínima para trabajar, que permanecen ocupados en uno o más puestos de trabajo y que percibieron un salario durante el periodo previo a la realización de la encuesta. Además, el ingreso de las personas se define como la sumatoria de su sueldo base más los ingresos generados por horas laborales extras, comisiones, ingresos por trabajar durante algún periodo vacacional, bono 14, aguinaldo, bono vacacional, décimo quinto sueldo y bono de productividad, así como cobertura de viáticos por motivo de alimentación, vivienda y transporte.
+
+\vspace{-2mm}
 
 ```{=tex}
 \begin{center}
@@ -82,6 +84,8 @@ kbl(table_one,
 
 \renewcommand{\arraystretch}{1}
 
+El cuadro 1 presenta las estadísticas descriptivas de los ingresos cuando la muestra es segregada por sexo. Como es posible apreciar, el ingreso medio es más elevado para el género femenino que para el masculino por aproximadamente 700 quetzales, mientras que la desviación estándar de esta medida también es más alta para el género femenino, sugiriendo que el mismo se distribuye con una mayor dispersión en este grupo. Sin embargo, es importante considerar que existen el doble de observaciones para los hombres que para la población femenina, por lo que este desbalance de clases podría estar sesgando a las estadísticas descriptivas. De hecho, Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que en realidad existe una marcada brecha salarial por género en el país que se explica debido a que la participación de la mayor parte de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
+
 ```{=tex}
 \begin{center}
 
@@ -95,7 +99,7 @@ kbl(table_one,
 
 \vspace{-2mm}
 ```
-```{r echo = FALSE, fig.dim = c(10, 2.9)}
+```{r echo = FALSE, fig.dim = c(10, 2.7)}
 p1 <- 
   data %>% 
   rename("Sexo" = sexo, "Ingreso" = ingreso) %>% 
@@ -114,10 +118,6 @@ p2 <-
 
 (p2 + p1) + plot_layout(widths = c(1, 2))
 ```
-
-El cuadro 1 presenta las estadísticas descriptivas de esta variable cuando la muestra es segregada por sexo. Como es posible apreciar, el ingreso medio es más elevado para el género femenino que para el masculino por aproximadamente 700 quetzales. Sin embargo, la desviación estándar de esta medida también es más alta para el género femenino, sugiriendo que el mismo se distribuye con una mayor dispersión entre mujeres. Además es importante considerar que existen el doble de observaciones para los hombres que para la población femenina, por lo que este desbalance de clases podría estar sesgando a las estadísticas descriptivas.
-
-De hecho, Gamboa (2021)---quien también utiliza los datos de la Encuesta Nacional de Empleo e Ingresos (2019)---encuentra que en realidad existe una marcada brecha salarial por género en el país que se explica debido a que la participación de la mayor parte de la fuerza laboral femenina se concentra dentro de ocupaciones caracterizadas por tener bajas y medias remuneraciones salariales.
 
 b)  Compara ahora las medias y determina si estadísticamente son distintas (el hecho de que los valores absolutos sean distintos no necesariamente significa que estadísticamente lo sean). Presenta tu cálculo y la evidencia para afirmar tu respuesta.
 
@@ -234,7 +234,7 @@ p3 <-
            label = paste("Índice de Gini = ", round(gini, 4)))
 ```
 
-```{r echo = FALSE, fig.dim = c(10, 3)}
+```{r echo = FALSE, fig.dim = c(10, 3.5)}
 plot_spacer() + p3 + plot_spacer() + plot_layout(widths = c(1, 2, 1))
 ```
 
@@ -685,20 +685,19 @@ h)  Con base a los cálculos que realizaste en los incisos previos, utiliza dos 
 
 --- ¿Es Guatemala un país con alta desigualdad?
 
-En cuanto a los resultados del coeficiente de Gini se obtuvo un coeficiente de 0.68 para toda la muestra. Y nuevamente considerando que este coeficiente toma un valor entre 0 y 1, en la cual el 0 representa la máxima equidad y el 1 la máxima desigualdad, se afirma que en el país se cuenta con una alta desigualdad en la distribución de la riqueza. Sin embargo, además de considerar solamente la magnitud del Gini, también sería importante para poder determinar si existe una alta desigualdad el poder comparar con el promedio mundial y el de la región a la cuál pertenece el país, que en este caso se consideran como América Latina y Centroamérica. 
+En cuanto a los resultados del coeficiente de Gini se obtuvo un coeficiente de 0.68 para toda la muestra. Y nuevamente considerando que este coeficiente toma un valor entre 0 y 1, en la cual el 0 representa la máxima equidad y el 1 la máxima desigualdad, se afirma que en el país se cuenta con una alta desigualdad en la distribución de la riqueza. Sin embargo, además de considerar solamente la magnitud del Gini, también sería importante para poder determinar si existe una alta desigualdad el poder comparar con el promedio mundial y el de la región a la cuál pertenece el país, que en este caso se consideran como América Latina y Centroamérica.
 
 Para poder realizar esta comparación, se obtuvieron datos del Gini del año 2019, a partir del Banco Mundial (2020), los datos obtenidos y que son los que se consideran sobre este coeficiente son los siguientes: promedio mundial: 0.354, América Latina, 0.462 y Centroamérica 0.4575. Ahora bien, ya que se tienen los datos sobre los cuáles se realizará la comparación del Gini del país, se puede decir que, comparando el coeficiente de Gini de Guatemala con el promedio del mundo, América Latina y Centroamérica, Guatemala es un país con alta desigualdad. El Gini obtenido se encuentra por encima en 0.326 con el promedio mundial, en 0.218 con América Latina y en 0.22 con Centroamérica. Esta diferencia se considera significativa ya que Guatemala en 8 años, según los datos disponibles por el Banco Mundial (2020) solamente pudo reducir el Gini en 0.063 cosa que podría indicar la alta magnitud de la diferencia del Gini que presenta Guatemala junto con los demás países del mundo y su región.
 
 --- ¿Existen diferencias significativas por sexo en el mercado laboral?
 
-En cuanto al mercado laboral si existe una diferencia significativa, principalmente entre las medias de ambos grupos, así como también en las tasas de retorno percibidas de la educación, experiencia y pertenencia a ciertos grupos a través de la función de Mincer y por último en la comparación de los Gini de ambos sexos. Primeramente, se observa que en las regresiones obtenidas a partir de la función de Mincer, los hombres perciben una menor tasa de retorno respecto a la educación, sin embargo, en cuanto a otros elementos como la pertenencia al sector formal, la pertenencia al área urbana y la autodenominación étnica no indígena, esta es mayor, demostrando que las personas que residen en áreas rurales, pertenecen al sector informal y se autodenominan como indígenas, perciben menor ingreso, pero esta es aún más evidente cuando los sujetos son mujeres. 
+En cuanto al mercado laboral si existe una diferencia significativa, principalmente entre las medias de ambos grupos, así como también en las tasas de retorno percibidas de la educación, experiencia y pertenencia a ciertos grupos a través de la función de Mincer y por último en la comparación de los Gini de ambos sexos. Primeramente, se observa que en las regresiones obtenidas a partir de la función de Mincer, los hombres perciben una menor tasa de retorno respecto a la educación, sin embargo, en cuanto a otros elementos como la pertenencia al sector formal, la pertenencia al área urbana y la autodenominación étnica no indígena, esta es mayor, demostrando que las personas que residen en áreas rurales, pertenecen al sector informal y se autodenominan como indígenas, perciben menor ingreso, pero esta es aún más evidente cuando los sujetos son mujeres.
 
 Por otra parte, es importante mencionar que, tomando las medias como una medida para inicial para saber la diferencia entre los salarios de ambos sexos, se realizó una prueba de Welch y se obtuvo el rechazo de la hipótesis nula, demostrando que si existe una diferencia estadísticamente significativa entre las medias. Asimismo, comparando los datos obtenidos en el inciso d, sobre el cuál se evalúa la diferencia estadística entre el Gini de hombres y mujeres, se puede determinar que si existe una diferencia estadística, el índice de Gini obtenido para las mujeres es mayor y la diferencia entre las medias de ambos grupos es estadísticamente significativa. Afirmando que si existe una diferencia significativa en el mercado laboral, tanto por la comparación de la desigualdad por sexo a través del Gini como por los retornos percibidos en los ingresos por ciertas características.
 
 --- ¿Es más alta la desigualdad entre hombres o entre mujeres y por qué?
 
-Ahora bien, para poder determinar si es más alta la desigualdad entre hombres o entre mujeres es importante considerar los incisos e y f, en los cuáles se obtiene un un bootstrapping de los ginis por género, pero con distinción entre la autodenominación étnica. Estos podrían ayudar a determinar, según la magnitud de la media de los Gini y la diferencia estadística que existe entre ellos si hay una diferencia significativa entre los grupos. Considerando los resultados obtenidos, se obtuvo que la media del índice de Gini de los hombres indígenas es de 0.7255 y la de los no indígenas es de 0.6075, comparando ambas medias se obtiene que existe una diferencia significativa entre estas medias y que la diferencia entre las medias de ambos grupos es de 0.118. Ahora bien, las medias de los Gini de las mujeres indígenas son de 0.8340 y de 0.6737 para las mujeres no indígenas, realizando una prueba t nuevamente se obtuvo que si existe una diferencia significativa entre ambas medias y realizando una diferencia entre ambas medias se puede determinar que existe una diferencia de 0.1603, siendo esta mayor a la que evidencian los hombres por autodenominación étnica. A partir de ello, se afirma que existe más alta desigualdad entre las mujeres que entre los hombres. 
-
+Ahora bien, para poder determinar si es más alta la desigualdad entre hombres o entre mujeres es importante considerar los incisos e y f, en los cuáles se obtiene un un bootstrapping de los ginis por género, pero con distinción entre la autodenominación étnica. Estos podrían ayudar a determinar, según la magnitud de la media de los Gini y la diferencia estadística que existe entre ellos si hay una diferencia significativa entre los grupos. Considerando los resultados obtenidos, se obtuvo que la media del índice de Gini de los hombres indígenas es de 0.7255 y la de los no indígenas es de 0.6075, comparando ambas medias se obtiene que existe una diferencia significativa entre estas medias y que la diferencia entre las medias de ambos grupos es de 0.118. Ahora bien, las medias de los Gini de las mujeres indígenas son de 0.8340 y de 0.6737 para las mujeres no indígenas, realizando una prueba t nuevamente se obtuvo que si existe una diferencia significativa entre ambas medias y realizando una diferencia entre ambas medias se puede determinar que existe una diferencia de 0.1603, siendo esta mayor a la que evidencian los hombres por autodenominación étnica. A partir de ello, se afirma que existe más alta desigualdad entre las mujeres que entre los hombres.
 
 --- ¿Consideras que todas las diferencias de ingreso que encontraste en tu análisis son producto de la discriminación?
 
