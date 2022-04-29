@@ -130,7 +130,7 @@ $$
 t = \frac{\overline{X_1} - \overline{X_2}} { \sqrt{s_{\overline{X_1}}^2 - s_{\overline{X_2}}^2}}
 $$
 
-donde $\overline{X_i}$ y $s_{\overline{X_i}}$ representan la media y error estándar de la muestra $i$, respectivamente. El cuadro 2 presenta los resultados de esta prueba, los cuales confirman la significancia estadística en la diferencia de las medias de ambos grupos a un nivel de confianza del 99%.
+donde $\overline{X_i}$ y $s_{\overline{X_i}}$ representan la media y error estándar de la muestra $i$, respectivamente. El cuadro 2 presenta los resultados de esta prueba, los cuales confirman la significancia estadística en la diferencia de las medias entre hombres y mujeres a un nivel de confianza del 99%.
 
 ```{=tex}
 \begin{center}
@@ -364,7 +364,7 @@ table_four <-
 
 De la misma forma que en el apartado anterior, se realiza un procedimiento de *bootstrapping* con el propósito de comprobar si las diferencias entre los coeficientes de Gini de hombres y mujeres segmentados por autodenominación étnica son estadísticamente significativas. El grupo "indígena" incluye a todas las personas que se autodenominan como mayas, xincas y garifunas, mientras que la categoría "no indígena" recoge a los individuos que se autodenominan como ladinos y extranjeros. Los resultados de este ejercicio se presentan en los cuadros 4 y 5.
 
-El cuadro 4 demuestra que existe una distribución de ingresos menos equitativa dentro del grupo de personas que se autodenominan mayas, xincas o garífunas (`r round(table_four %>% slice(1) %>% pull(2), 2)`) que en la categoría "no indígena" (`r round(table_four %>% slice(2) %>% pull(2), 2)`). Además, es importante observar que el rango del índice de Gini para los hombres indígenas comienza en un mínimo mayor que el de los hombre no indígenas y también finaliza en un máximo más alto. Una prueba $t$ de Student demuestra que, en efecto, ambos coeficientes pueden considerarse como estadísticamente distintos.
+El cuadro 4 demuestra que existe una distribución de ingresos menos equitativa dentro del grupo de hombres que se autodenominan mayas, xincas o garífunas (`r round(table_four %>% slice(1) %>% pull(2), 2)`) que en la categoría "no indígena" (`r round(table_four %>% slice(2) %>% pull(2), 2)`). Además, es importante observar que el rango del índice de Gini para los hombres indígenas comienza en un mínimo mayor que el de los hombre no indígenas y también finaliza en un máximo más alto. Una prueba $t$ de Student demuestra que, en efecto, ambos coeficientes pueden considerarse como estadísticamente distintos.
 
 ```{=tex}
 \begin{center}
